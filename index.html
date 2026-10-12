@@ -1,0 +1,1965 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#2c5f9e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Something Wild Solo</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  --navy: #2c5f9e;
+  --navy-d: #1d4274;
+  --ink: #1b2233;
+  --paper: #eef2f7;
+  --paper-2: #dde5ef;
+  --logo-red: #e2323f;
+  --gold: #f6c22d;
+  --radius: 14px;
+  --c-red: #e8404e; --d-red: #a8212c; --l-red: #ff9aa0;
+  --c-blue: #1f7fd1; --d-blue: #14518a; --l-blue: #8cc4f2;
+  --c-green: #16a58a; --d-green: #0c6b59; --l-green: #7fdcc8;
+  --c-yellow: #f5b01c; --d-yellow: #8a5c00; --l-yellow: #ffe08a;
+  --c-purple: #7b4cc0; --d-purple: #4d2a85; --l-purple: #c4a6ee;
+  --cw: 84px;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  overscroll-behavior: none;
+  -webkit-user-select: none; user-select: none;
+}
+button { font: inherit; cursor: pointer; }
+.hidden { display: none !important; }
+
+/* ---------- header ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--navy); color: #fff;
+  padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+  position: sticky; top: 0; z-index: 20;
+}
+.logo { font-weight: 900; font-size: 20px; letter-spacing: .5px; line-height: 1; flex: 1; text-transform: uppercase; }
+.logo b { color: #fff; background: var(--logo-red); padding: 2px 8px 3px; border-radius: 6px; margin-left: 4px; font-style: italic; box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.iconbtn {
+  background: rgba(255,255,255,.16); color: #fff; border: 0; border-radius: 10px;
+  min-width: 40px; height: 36px; padding: 0 12px; font-weight: 800; font-size: 14px;
+}
+.iconbtn:active { background: rgba(255,255,255,.3); }
+
+/* ---------- setup screen ---------- */
+.setup { max-width: 560px; margin: 0 auto; padding: 18px 16px 40px; }
+.hero {
+  background: var(--navy); color: #fff; border-radius: 22px; padding: 22px 18px 20px; text-align: center;
+  box-shadow: 0 6px 0 var(--navy-d);
+}
+.hero h1 { margin: 0; font-size: clamp(34px, 11vw, 52px); line-height: .95; text-transform: uppercase; letter-spacing: 1px; }
+.hero h1 span { display: block; color: #fff; }
+.hero h1 em { display: inline-block; background: var(--logo-red); font-style: italic; padding: 2px 14px 6px; border-radius: 10px; margin-top: 4px; box-shadow: 0 3px 0 rgba(0,0,0,.25); transform: rotate(-2deg); }
+.hero p { margin: 14px 0 0; opacity: .9; font-weight: 600; }
+.hero .fan { display: flex; justify-content: center; margin-top: 16px; --cw: 62px; }
+.hero .fan .card { margin: 0 -8px; box-shadow: 0 4px 10px rgba(0,0,0,.35); }
+.hero .fan .card:nth-child(1) { transform: rotate(-12deg) translateY(6px); }
+.hero .fan .card:nth-child(2) { transform: rotate(-6deg) translateY(1px); }
+.hero .fan .card:nth-child(3) { transform: rotate(0); z-index: 2; }
+.hero .fan .card:nth-child(4) { transform: rotate(6deg) translateY(1px); }
+.hero .fan .card:nth-child(5) { transform: rotate(12deg) translateY(6px); }
+.panel { background: #fff; border-radius: 18px; padding: 14px; margin-top: 14px; box-shadow: 0 2px 0 var(--paper-2), 0 6px 18px rgba(30,50,90,.08); }
+.panel h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #5a6a85; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button {
+  flex: 1 1 0; min-width: 64px; padding: 11px 8px; border-radius: 12px; border: 2px solid var(--paper-2);
+  background: #fff; font-weight: 800; color: var(--ink);
+}
+.seg button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; box-shadow: 0 3px 0 var(--navy-d); }
+.opp-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.opp-row .av { width: 40px; height: 40px; flex: none; }
+.opp-row .nm { font-weight: 800; width: 66px; flex: none; }
+.opp-row .seg { flex: 1; }
+.opp-row .seg button { padding: 8px 2px; min-width: 0; font-size: 12px; }
+.bigbtn {
+  display: block; width: 100%; margin-top: 18px; padding: 16px; border: 0; border-radius: 16px;
+  background: var(--logo-red); color: #fff; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+  box-shadow: 0 5px 0 #a8212c;
+}
+.bigbtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #a8212c; }
+.fine { text-align: center; font-size: 12px; color: #6b7b95; margin-top: 14px; }
+.linkbtn { background: none; border: 0; color: var(--navy); font-weight: 800; text-decoration: underline; padding: 6px; }
+
+/* ---------- cards ---------- */
+.card {
+  position: relative; width: var(--cw); aspect-ratio: 5 / 7; flex: none;
+  border-radius: calc(var(--cw) * .1); background: var(--c);
+  border: calc(var(--cw) * .04) solid #fff; box-shadow: 0 2px 6px rgba(20,30,60,.3);
+  overflow: hidden; color: #fff;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card .art { position: absolute; left: 0; right: 0; top: 8%; bottom: 15%; background: radial-gradient(circle at 50% 48%, rgba(255,255,255,.6), rgba(255,255,255,0) 66%); }
+.card .art svg { width: 100%; height: 100%; display: block; }
+.card .num {
+  position: absolute; left: 5%; top: 4%; width: 27%; aspect-ratio: 1; border-radius: 50%;
+  background: #fff; color: var(--c); display: grid; place-items: center; z-index: 2;
+  font-weight: 900; font-size: calc(var(--cw) * .22); line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.card .nm {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 15%; background: #fff; color: var(--d);
+  display: grid; place-items: center; font-weight: 900; text-transform: uppercase;
+  font-size: calc(var(--cw) * .095); letter-spacing: .3px; white-space: nowrap;
+}
+.card .msym { position: absolute; right: 5%; top: 5%; width: 19%; z-index: 2; background: rgba(255,255,255,.92); border-radius: 6px; padding: 2px; }
+.card .msym svg { width: 100%; display: block; }
+.card.back {
+  background: linear-gradient(135deg, #fff 0 6%, var(--navy) 6% 100%);
+  display: grid; place-items: center;
+}
+.card.back::after {
+  content: "WILD!"; color: #fff; font-weight: 900; font-style: italic; transform: rotate(-12deg);
+  font-size: calc(var(--cw) * .2); background: var(--logo-red); padding: 2px 6px; border-radius: 5px; box-shadow: 0 2px 0 rgba(0,0,0,.3);
+}
+.card.empty { background: transparent; border: 2px dashed #a9b6cb; box-shadow: none; }
+.c-red { --c: var(--c-red); --d: var(--d-red); --l: var(--l-red); }
+.c-blue { --c: var(--c-blue); --d: var(--d-blue); --l: var(--l-blue); }
+.c-green { --c: var(--c-green); --d: var(--d-green); --l: var(--l-green); }
+.c-yellow { --c: var(--c-yellow); --d: var(--d-yellow); --l: var(--l-yellow); }
+.c-purple { --c: var(--c-purple); --d: var(--d-purple); --l: var(--l-purple); }
+.card.sm { --cw: 46px; }
+.card.sm .nm, .card.sm .msym { display: none; }
+.card.sm .art { bottom: 0; }
+.card.md { --cw: 62px; }
+.card.md .nm { font-size: 7px; }
+.card.lg { --cw: 110px; }
+
+.selectable { cursor: pointer; outline: 3px solid var(--gold); outline-offset: 1px; animation: glow 1.1s ease-in-out infinite; }
+@keyframes glow { 0%, 100% { outline-color: var(--gold); } 50% { outline-color: #fff; } }
+.picked { outline: 4px solid #fff; box-shadow: 0 0 0 3px var(--logo-red), 0 8px 18px rgba(0,0,0,.35); transform: translateY(-14px) scale(1.04) !important; animation: none; z-index: 5; }
+.hinted::before { content: "\2605"; position: absolute; z-index: 6; right: 3px; bottom: 18%; color: #fff; background: var(--logo-red); border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.fresh { animation: pop .45s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: scale(.4) translateY(-30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+/* ---------- power cards ---------- */
+.pcard {
+  width: var(--pw, 180px); background: #fff; border-radius: 12px; overflow: hidden; border: 3px solid var(--c);
+  box-shadow: 0 2px 8px rgba(20,30,60,.25); text-align: center; flex: none; position: relative;
+}
+.pcard .ptop { background: var(--c); color: #fff; font-weight: 900; font-size: 12px; text-transform: uppercase; padding: 3px 6px; letter-spacing: .4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.pcard .pico { background: linear-gradient(#f7f9fc, #e8edf5); padding: 6px 8px; }
+.pcard .pico svg { width: 100%; height: 46px; display: block; }
+.pcard .ptxt { font-size: 11px; line-height: 1.25; padding: 5px 7px 7px; font-weight: 600; color: #3b475e; }
+.pcard.mini { --pw: 64px; border-width: 2px; border-radius: 9px; }
+.pcard.mini .ptop { font-size: 8px; padding: 2px 2px; }
+.pcard.mini .pico { padding: 3px 3px; }
+.pcard.mini .pico svg { height: 24px; }
+.pcard.mini .ptxt { display: none; }
+.pcard.big { --pw: 150px; }
+.pcard.disabled { filter: grayscale(.85); opacity: .65; }
+.pcard .stripe { position: absolute; right: 0; top: 0; background: var(--gold); color: #3b2c00; font-size: 10px; font-weight: 900; padding: 2px 6px; border-bottom-left-radius: 8px; }
+
+/* ---------- game screen ---------- */
+.game { display: flex; flex-direction: column; min-height: calc(100dvh - 52px); max-width: 980px; margin: 0 auto; padding: 8px 8px 0; gap: 8px; }
+.opps { display: flex; flex-direction: column; gap: 6px; }
+@media (min-width: 760px) { .opps { flex-direction: row; } .opps .opp { flex: 1; } }
+.opp { background: #fff; border-radius: 14px; padding: 7px 9px 8px; box-shadow: 0 2px 0 var(--paper-2); position: relative; border: 3px solid transparent; transition: border-color .2s, box-shadow .2s; min-width: 0; }
+.opp.active, .me.active { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(246,194,45,.35); }
+.head { display: flex; align-items: center; gap: 7px; min-height: 30px; }
+.head .av { width: 28px; height: 28px; flex: none; }
+.head .who { font-weight: 900; font-size: 14px; }
+.lvl { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .6px; padding: 2px 6px; border-radius: 99px; background: var(--paper-2); color: #4a5a76; }
+.lvl.hard { background: #ffd9dc; color: #8a1d27; }
+.lvl.unpredictable { background: #e6d9ff; color: #4d2a85; }
+.lvl.easy { background: #d5f4e8; color: #0c6b59; }
+.lvl.medium { background: #fff0c4; color: #7a5600; }
+.pips { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+.pip { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #b7c2d6; background: #fff; }
+.pip.on { background: var(--gold); border-color: #c99a00; box-shadow: 0 0 0 2px rgba(246,194,45,.35); }
+.handcount { display: flex; align-items: center; gap: 3px; font-weight: 900; font-size: 12px; color: #4a5a76; }
+.handcount .mb { width: 11px; height: 15px; border-radius: 2px; background: var(--navy); border: 1px solid #fff; box-shadow: 0 0 0 1px #9fb0cc; }
+.moverchip { width: 26px; height: 32px; flex: none; }
+.moverchip svg { width: 100%; height: 100%; }
+.tabrow { display: flex; align-items: flex-end; min-height: 56px; margin-top: 4px; padding-left: 2px; }
+.tabrow .card { margin-right: -8px; }
+.tabrow .card:last-child { margin-right: 0; }
+.tabrow.empty::before { content: "nothing in play yet"; color: #9aa8bf; font-size: 11px; font-weight: 700; align-self: center; }
+.pwrow { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+
+.center { display: flex; align-items: flex-start; justify-content: center; gap: 10px; padding: 8px; background: linear-gradient(#e3eaf4, #d6e0ee); border-radius: 16px; }
+.pile { text-align: center; font-size: 11px; font-weight: 800; color: #4a5a76; --cw: 58px; }
+.pile .card { margin: 0 auto 3px; }
+.pile .count { display: block; }
+.centerpower { text-align: center; }
+.centerpower .hint { display: block; font-size: 10.5px; font-weight: 800; color: #4a5a76; margin-top: 4px; max-width: 150px; }
+.hint .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c); vertical-align: -1px; margin-right: 2px; }
+.moverbox { text-align: center; font-size: 10.5px; font-weight: 800; color: #4a5a76; width: 62px; }
+.moverbox .tok { width: 46px; height: 56px; margin: 0 auto 2px; }
+.moverbox .tok svg { width: 100%; height: 100%; }
+.moverbox.held .tok { opacity: .35; filter: grayscale(.6); }
+.ticker { text-align: center; min-height: 36px; font-weight: 700; font-size: 13px; color: #33415c; padding: 0 6px; display: flex; flex-direction: column; justify-content: center; }
+.ticker div:last-child { font-weight: 900; color: var(--ink); }
+.ticker div:not(:last-child) { opacity: .55; font-size: 12px; }
+
+.me { background: #fff; border-radius: 14px; padding: 7px 9px 9px; box-shadow: 0 2px 0 var(--paper-2); border: 3px solid transparent; }
+.me .tabrow { min-height: 92px; }
+.me .tabrow .card { --cw: 62px; margin-right: -4px; }
+.hand { display: flex; justify-content: center; gap: 6px; padding: 10px 4px 10px; }
+.hand .card { --cw: min(23vw, 92px); }
+@media (min-width: 760px) { .hand .card { --cw: 100px; } .me .tabrow .card { --cw: 78px; } .card.sm { --cw: 54px; } .card.md { --cw: 70px; } }
+.hand .card:active { transform: translateY(-4px); }
+
+/* ---------- prompt bar ---------- */
+.promptbar {
+  position: sticky; bottom: 0; z-index: 15; margin: 0 -8px; padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+  background: var(--navy); color: #fff; display: flex; align-items: center; gap: 10px; min-height: 62px;
+  box-shadow: 0 -4px 14px rgba(20,40,80,.25);
+}
+.promptbar .msg { flex: 1; font-weight: 800; font-size: 15px; line-height: 1.2; }
+.promptbar .msg small { display: block; font-weight: 600; opacity: .85; font-size: 12px; margin-top: 2px; }
+.pbtn { border: 0; border-radius: 12px; padding: 11px 16px; font-weight: 900; font-size: 15px; background: #fff; color: var(--navy-d); box-shadow: 0 3px 0 rgba(0,0,0,.25); white-space: nowrap; }
+.pbtn.primary { background: var(--logo-red); color: #fff; }
+.pbtn[disabled] { opacity: .45; box-shadow: none; }
+.pbtn:active:not([disabled]) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.dots::after { content: ""; display: inline-block; width: 1.4em; text-align: left; animation: dots 1.2s steps(4, end) infinite; }
+@keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+
+/* ---------- sheets / overlays ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(15,25,50,.45); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.scrim.center-modal { align-items: center; padding: 16px; }
+.sheet { background: #fff; width: 100%; max-width: 620px; border-radius: 22px 22px 0 0; padding: 16px 14px max(16px, env(safe-area-inset-bottom)); max-height: 82dvh; overflow: auto; animation: rise .22s ease-out; }
+.center-modal .sheet { border-radius: 22px; }
+@keyframes rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet h2 { margin: 0 0 4px; font-size: 20px; }
+.sheet .sub { margin: 0 0 12px; color: #5a6a85; font-weight: 600; font-size: 14px; }
+.sheet h4 { margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #5a6a85; }
+.plist { display: flex; flex-direction: column; gap: 10px; }
+.popt { display: flex; gap: 12px; align-items: center; padding: 8px; border-radius: 14px; border: 2px solid var(--paper-2); background: #fff; text-align: left; width: 100%; }
+.popt:not([disabled]):active { background: #f3f6fb; }
+.popt .pcard { --pw: 118px; }
+.popt .ptxt { display: none; }
+.popt .info { flex: 1; font-size: 13px; font-weight: 700; color: #3b475e; line-height: 1.3; }
+.popt .info b { display: block; font-size: 15px; color: var(--ink); }
+.popt .info .why { color: #b33; font-size: 12px; }
+.popt .star { color: #0c6b59; font-weight: 900; }
+.popt[disabled] { opacity: .55; }
+.colorgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 8px 0; }
+.colorgrid button { aspect-ratio: 1; border: 3px solid #fff; border-radius: 16px; font-weight: 900; color: #fff; font-size: 11px; text-transform: uppercase; box-shadow: 0 3px 0 rgba(0,0,0,.25); background: var(--c); }
+.numgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 8px 0; }
+.numgrid button { padding: 14px 0; border-radius: 14px; border: 2px solid var(--paper-2); background: #fff; font-size: 22px; font-weight: 900; box-shadow: 0 3px 0 var(--paper-2); }
+.numgrid button:active { background: var(--navy); color: #fff; }
+.cardrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 0; }
+.cardrow .card { --cw: 62px; }
+.tripleopt { display: flex; gap: 4px; padding: 8px; border-radius: 14px; border: 2px solid var(--paper-2); background: #fff; margin-bottom: 8px; width: 100%; align-items: center; justify-content: center; }
+.tripleopt .card { --cw: 58px; }
+.tripleopt .lbl { margin-left: 10px; font-weight: 800; font-size: 13px; text-align: left; flex: 1; }
+.skipbtn { width: 100%; margin-top: 10px; padding: 13px; border-radius: 14px; border: 2px solid var(--paper-2); background: #fff; font-weight: 900; font-size: 15px; color: #4a5a76; }
+.rules p, .rules li { font-size: 14px; line-height: 1.45; color: #2e3a52; }
+.rules ol { padding-left: 20px; margin: 6px 0; }
+.rules .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 440px) { .rules .pgrid { grid-template-columns: 1fr; } }
+.rules .pcard { --pw: 100%; }
+.rules .pcard .pico svg { height: 40px; }
+
+/* ---------- banners ---------- */
+.banner { position: fixed; left: 50%; top: 28%; transform: translateX(-50%); z-index: 60; pointer-events: none; text-align: center; animation: bannerIn 2s ease both; width: min(92vw, 520px); }
+.banner .b { display: inline-block; background: var(--logo-red); color: #fff; font-weight: 900; font-size: clamp(22px, 7vw, 38px); text-transform: uppercase; font-style: italic; padding: 8px 22px 12px; border-radius: 16px; box-shadow: 0 6px 0 #a8212c, 0 10px 30px rgba(0,0,0,.3); transform: rotate(-2deg); }
+.banner .s { margin-top: 10px; background: #fff; border-radius: 12px; display: inline-block; padding: 7px 14px; font-weight: 800; font-size: 14px; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+@keyframes bannerIn { 0% { opacity: 0; transform: translateX(-50%) scale(.5) rotate(-6deg); } 12% { opacity: 1; transform: translateX(-50%) scale(1.05); } 20% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+.win { text-align: center; }
+.win .trophy { font-size: 56px; }
+.win h2 { font-size: 30px; text-transform: uppercase; font-style: italic; margin: 6px 0; color: var(--logo-red); }
+.win .row { display: flex; gap: 10px; margin-top: 14px; }
+.win .row button { flex: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* ---------- layout v2: compact table (overrides earlier rules) ---------- */
+.opps { display: grid !important; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); gap: 6px; }
+.opp {
+  --pw: calc((min(100vw, 980px) - 16px - (var(--n, 1) - 1) * 6px) / var(--n, 1));
+  --ocw: clamp(26px, calc((var(--pw) - 26px) / 3.3), 56px);
+  padding: 6px 7px 7px;
+}
+.opp .h1 { display: flex; align-items: center; gap: 5px; min-height: 26px; }
+.opp .h1 .av { width: 24px; height: 24px; flex: none; }
+.opp .h1 .who { font-weight: 900; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opp .h1 .moverchip { width: 18px; height: 24px; margin-left: auto; }
+.opp .h2 { display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
+.opp .h2 .pips { margin-left: auto; gap: 3px; }
+.opp .pip { width: 11px; height: 11px; border-width: 2px; }
+.opp .lvl { font-size: 8.5px; padding: 1px 5px; }
+.opp .handcount { font-size: 11px; }
+.opp .handcount .mb { width: 8px; height: 11px; }
+.opp .card.sm { --cw: var(--ocw); }
+.opp .tabrow { min-height: calc(var(--ocw) * 1.4); margin-top: 4px; }
+.opp .tabrow .card { margin-right: calc(var(--ocw) * -.42); }
+.opp .tabrow .card:last-child { margin-right: 0; }
+.opp .tabrow.empty::before { font-size: 10px; }
+.chips { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+.opp .chips { margin-top: 4px; min-height: 0; }
+.pchip { width: 36px; padding: 1px 2px; border: 2px solid var(--c); border-radius: 7px; background: #f3f6fb; }
+.pchip svg { width: 100%; height: 19px; display: block; }
+.head { flex-wrap: nowrap; }
+.me .head .chips { margin-left: 4px; }
+.me .head .pips { margin-left: auto; }
+.me .head .moverchip { width: 22px; height: 28px; }
+.me .tabrow { flex-wrap: wrap; gap: 4px; min-height: 88px; }
+.me .tabrow .card { margin-right: 0; --cw: 60px; }
+.hand .card { --cw: min(21.5vw, 88px); }
+@media (min-width: 760px) { .me .tabrow .card { --cw: 76px; } .hand .card { --cw: 100px; } .opp { --ocw: 48px; } }
+
+.center { flex-direction: column; align-items: stretch; gap: 4px; padding: 8px 8px 6px; }
+.center .row { display: flex; align-items: flex-start; justify-content: center; gap: 10px; }
+.pile { background: none; border: 0; padding: 0; font-family: inherit; }
+.pile .card { --cw: 52px; }
+.centerpower .pcard.big { --pw: 124px; }
+.centerpower .pcard .ptxt { display: none; }
+.centerpower .pcard .pico svg { height: 38px; }
+.centerpower .hint { max-width: 124px; margin-left: auto; margin-right: auto; font-size: 10px; line-height: 1.2; }
+.moverbox { width: 56px; }
+.moverbox .tok { width: 40px; height: 50px; }
+.pcard.mini .ptop { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.ticker { min-height: 34px; }
+.sheet .pcard { --pw: 118px; }
+.sheet .pcard.big { --pw: 170px; }
+.sheet .pcard.big .ptxt { display: block; }
+.popt .pcard .ptxt { display: none; }
+.rules .pcard { --pw: 100%; }
+.rules .pcard .ptxt { display: block; }
+.game { gap: 6px; }
+
+/* ---------- fixes ---------- */
+.opp-row { flex-wrap: wrap; row-gap: 6px; }
+.opp-row .nm { flex: 1; width: auto; }
+.opp-row .seg { flex: 1 1 100%; order: 3; }
+.opp-row .seg button { font-size: 12.5px; padding: 9px 2px; }
+.setup { overflow-x: hidden; }
+.promptbar { margin-top: auto; }
+.game { min-height: calc(100dvh - 54px); }
+
+/* ---------- v3: readable numbers on played cards, power tooltip, game-over bar ---------- */
+.me .tabrow .card { --cw: 66px; }
+.card.md .num { width: 38%; font-size: calc(var(--cw) * .32); left: 4%; top: 3%; }
+.card.md .msym { width: 17%; }
+/* small (opponent) cards: the number goes in a big band where the name would be */
+.card.sm .nm { height: 38%; font-size: 0; background: #fff; }
+.card.sm .nm::after { content: attr(data-n); font-size: calc(var(--cw) * .56); font-weight: 900; color: var(--c); line-height: 1; }
+.card.sm .num { display: none; }
+.card.sm .art { top: 4%; bottom: 30%; }
+.pile .card .num { width: 38%; font-size: calc(var(--cw) * .3); }
+@media (min-width: 760px) { .me .tabrow .card { --cw: 80px; } }
+#tip {
+  position: fixed; z-index: 80; display: none; pointer-events: none; background: #17203a; color: #fff;
+  border-radius: 12px; padding: 9px 12px 10px; font-size: 13.5px; line-height: 1.3; font-weight: 600;
+  box-shadow: 0 10px 28px rgba(0,0,0,.4);
+}
+#tip b { display: block; font-size: 14.5px; margin-bottom: 3px; color: var(--gold); text-transform: uppercase; letter-spacing: .4px; }
+[data-power], [data-act^="power:"] { -webkit-touch-callout: none; touch-action: manipulation; cursor: help; }
+.promptbar.over { background: var(--logo-red); }
+.promptbar.over .pbtn.primary { background: #fff; color: var(--logo-red); }
+.promptbar.over .pbtn { background: rgba(255,255,255,.22); color: #fff; box-shadow: none; }
+.promptbar.over .pbtn.primary { background: #fff; color: #a8212c; }
+.card.sm .nm { justify-items: start; padding-left: 13%; }
+.card.sm .nm { display: grid; }
+
+/* ---------- peek at the table while a decision sheet is open ---------- */
+.peekbtn { float: right; margin: 0 0 6px 8px; border: 2px solid var(--paper-2); background: #fff; color: var(--navy); font-weight: 900; font-size: 13px; padding: 7px 11px; border-radius: 99px; }
+.peekbtn:active { background: var(--paper-2); }
+.scrim.peeking { background: transparent; pointer-events: none; }
+.scrim.peeking .sheet { display: none; }
+.peekbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; pointer-events: auto;
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+  background: var(--navy); color: #fff; font-weight: 800; box-shadow: 0 -4px 14px rgba(20,40,80,.3);
+}
+.peekbar span { flex: 1; }
+
+/* ---------- drag a card to your play area ---------- */
+.card.draggable { touch-action: none; cursor: grab; }
+.card.dragging { opacity: .28; }
+.card.ghost {
+  position: fixed; z-index: 90; margin: 0; pointer-events: none; transform: scale(1.1) rotate(-3deg);
+  box-shadow: 0 16px 34px rgba(0,0,0,.4); transition: none; animation: none; outline: none;
+}
+.card.ghost.returning { transition: left .18s ease, top .18s ease, transform .18s ease; }
+.me { position: relative; }
+.me.drop-ready { outline: 3px dashed var(--gold); outline-offset: 2px; background: #fffbea; }
+.me.drop-ready::after {
+  content: "Drop here to play"; position: absolute; right: 10px; bottom: 8px; z-index: 3; pointer-events: none;
+  font-weight: 900; font-size: 12px; color: #6d4a00; background: var(--gold); padding: 3px 10px; border-radius: 99px;
+}
+.me.drop-over { outline-style: solid; background: #fff1b8; }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="overlay"></div>
+<div id="banner"></div>
+<script>
+/* Something Wild! - rules engine (Spider-Man edition ruleset).
+   Pure logic, no DOM. Works in browsers (global SW) and Node (require). */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.SW = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const RULES = { HAND: 3, MAX_TABLEAU: 5, WIN: 3 };
+  const COLORS = ['red', 'blue', 'green', 'yellow', 'purple'];
+  const COLOR_LABEL = { red: 'Red', blue: 'Blue', green: 'Green', yellow: 'Yellow', purple: 'Purple' };
+
+  /* ---- Power cards -------------------------------------------------------
+     10 powers, 2 per colour. The rulebook lists the 10 effects but the colour
+     of each Power card is only visible on the physical cards, so the colour
+     assignment below is an ASSUMPTION - edit the `color` fields to match. */
+  const POWERS = [
+    { id: 'blue3',      color: 'blue',   kind: 'score', mode: 'blue',
+      name: 'Blue Trio',     text: 'With three BLUE cards in play, you may score with them.' },
+    { id: 'red3',       color: 'red',    kind: 'score', mode: 'red',
+      name: 'Red Trio',      text: 'With three RED cards in play, you may score with them.' },
+    { id: 'n268',       color: 'green',  kind: 'score', mode: '268',
+      name: '2-6-8',         text: 'With a 2, a 6 and an 8 in play, you may score with them.' },
+    { id: 'redwild',    color: 'red',    kind: 'wild',  wild: 'red',
+      name: 'Red Is Wild',   text: 'Treat RED cards in play as any NUMBER.' },
+    { id: 'threewild',  color: 'blue',   kind: 'wild',  wild: '3',
+      name: 'Threes Wild',   text: 'Treat 3s in play as any NUMBER.' },
+    { id: 'guesscolor', color: 'purple', kind: 'guess', guess: 'color',
+      name: 'Guess a Color', text: 'Guess a COLOR. Discard the top card of the deck. If it matches, play the card.' },
+    { id: 'guessnum',   color: 'purple', kind: 'guess', guess: 'number',
+      name: 'Guess a Number', text: 'Guess a NUMBER. Discard the top card of the deck. If it matches, play the card.' },
+    { id: 'swap',       color: 'yellow', kind: 'swap',
+      name: 'Swap',          text: 'Swap a card in play with another player’s card of the same COLOR.' },
+    { id: 'seven',      color: 'yellow', kind: 'discard7',
+      name: 'Lucky Sevens',  text: 'If you have any 7s in play, play a card from the discard pile.' },
+    { id: 'pass',       color: 'green',  kind: 'pass',
+      name: 'Pass It On',    text: 'All players pass a card from their hand to the previous player.' },
+  ];
+  const POWER_BY_ID = {};
+  POWERS.forEach(p => (POWER_BY_ID[p.id] = p));
+
+  /* ---- Cards ------------------------------------------------------------ */
+  const ALL_CARDS = [];
+  COLORS.forEach(color => { for (let n = 1; n <= 9; n++) ALL_CARDS.push({ id: color + n, color, num: n }); });
+  const CARD_BY_ID = {};
+  ALL_CARDS.forEach(c => (CARD_BY_ID[c.id] = c));
+  const cardName = c => COLOR_LABEL[c.color] + ' ' + c.num;
+  const hasMoverSymbol = c => c.num === 1; // the five 1s carry the "take a mover" symbol
+
+  /* ---- Utilities -------------------------------------------------------- */
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function shuffle(arr, rng) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function combos3(arr) {
+    const out = [];
+    for (let i = 0; i < arr.length; i++)
+      for (let j = i + 1; j < arr.length; j++)
+        for (let k = j + 1; k < arr.length; k++) out.push([arr[i], arr[j], arr[k]]);
+    return out;
+  }
+  function removeById(arr, id) {
+    const i = arr.findIndex(c => c.id === id);
+    if (i < 0) throw new Error('card not found: ' + id);
+    return arr.splice(i, 1)[0];
+  }
+
+  /* ---- Scoring logic ----------------------------------------------------- */
+  function wildFn(power) {
+    if (power && power.kind === 'wild') {
+      if (power.wild === 'red') return c => c.color === 'red';
+      if (power.wild === '3') return c => c.num === 3;
+    }
+    return () => false;
+  }
+  function isSet(cards, wf) {
+    const nums = new Set();
+    for (const c of cards) if (!wf(c)) nums.add(c.num);
+    return nums.size <= 1;
+  }
+  function isRun(cards, wf) {
+    const col = cards[0].color;
+    if (!cards.every(c => c.color === col)) return false;
+    const fixed = cards.filter(c => !wf(c)).map(c => c.num);
+    if (new Set(fixed).size !== fixed.length) return false;
+    if (fixed.length === 0) return true;
+    const mn = Math.min(...fixed), mx = Math.max(...fixed);
+    if (mx - mn > 2) return false;
+    return Math.max(1, mx - 2) <= Math.min(7, mn);
+  }
+  function powerModeMatch(cards, power) {
+    if (!power || power.kind !== 'score') return false;
+    if (power.mode === 'blue') return cards.every(c => c.color === 'blue');
+    if (power.mode === 'red') return cards.every(c => c.color === 'red');
+    if (power.mode === '268') {
+      const nums = cards.map(c => c.num).sort((a, b) => a - b);
+      return nums[0] === 2 && nums[1] === 6 && nums[2] === 8;
+    }
+    return false;
+  }
+  /** What kind of score is this triple? returns 'set' | 'run' | 'power' | null */
+  function tripleKind(cards, power) {
+    const wf = wildFn(power);
+    if (isSet(cards, wf)) return 'set';
+    if (isRun(cards, wf)) return 'run';
+    if (powerModeMatch(cards, power)) return 'power';
+    return null;
+  }
+  const isScoringTriple = (cards, power) => tripleKind(cards, power) !== null;
+  /** All scoring triples in a tableau given the Power used this turn (or null). */
+  function findTriples(tableau, power) {
+    return combos3(tableau).filter(t => isScoringTriple(t, power));
+  }
+
+  /* ---- Power feasibility ------------------------------------------------- */
+  function swapPairs(state, pi) {
+    const me = state.players[pi];
+    const pairs = [];
+    me.tableau.forEach(mine => {
+      state.players.forEach((o, oi) => {
+        if (oi === pi) return;
+        o.tableau.forEach(theirs => {
+          if (theirs.color === mine.color) pairs.push({ mine: mine.id, theirs: theirs.id, other: oi });
+        });
+      });
+    });
+    return pairs;
+  }
+  function powerFeasibility(state, pi, power) {
+    const me = state.players[pi];
+    switch (power.kind) {
+      case 'guess':
+        return state.deck.length + state.discard.length > 0 ? { ok: true } : { ok: false, reason: 'No cards left to reveal' };
+      case 'swap':
+        return swapPairs(state, pi).length ? { ok: true } : { ok: false, reason: 'No matching colors to swap' };
+      case 'discard7':
+        if (!me.tableau.some(c => c.num === 7)) return { ok: false, reason: 'You have no 7 in play' };
+        if (!state.discard.length) return { ok: false, reason: 'Discard pile is empty' };
+        return { ok: true };
+      case 'pass':
+        return state.players.every(p => p.hand.length > 0) ? { ok: true } : { ok: false, reason: 'Nobody has cards to pass' };
+      default:
+        return { ok: true };
+    }
+  }
+  /** Powers the player may use right now (needs the mover). */
+  function usablePowers(state, pi) {
+    if (state.mover !== pi) return [];
+    const me = state.players[pi];
+    const list = [];
+    me.powers.forEach(p => list.push({ power: p, source: 'own' }));
+    if (state.center) list.push({ power: state.center, source: 'center' });
+    return list.map(o => {
+      const f = powerFeasibility(state, pi, o.power);
+      let scores = false;
+      if (o.power.kind === 'wild' || o.power.kind === 'score')
+        scores = findTriples(me.tableau, o.power).length > 0;
+      return { power: o.power, source: o.source, feasible: f.ok, reason: f.reason, scores };
+    });
+  }
+
+  /* ---- Game setup --------------------------------------------------------- */
+  function newGame(opts) {
+    const seed = opts.seed != null ? opts.seed : (Math.random() * 4294967296) >>> 0;
+    const rng = mulberry32(seed);
+    const players = opts.players.map((p, i) => ({
+      id: i, name: p.name, human: !!p.human, level: p.level || null,
+      hand: [], tableau: [], powers: [],
+    }));
+    const deck = shuffle(ALL_CARDS.slice(), rng);
+    for (let r = 0; r < RULES.HAND; r++) players.forEach(p => p.hand.push(deck.pop()));
+    const powerPile = shuffle(POWERS.slice(), rng);
+    const center = powerPile.pop();
+    const first = opts.first == null || opts.first === 'random' ? Math.floor(rng() * players.length) : opts.first;
+    return { players, deck, discard: [], powerPile, center, mover: null, current: first,
+      turnNo: 0, winner: null, rng, turn: null, seed };
+  }
+
+  async function emit(hooks, type, data) {
+    if (hooks && hooks.event) await hooks.event(type, data || {});
+  }
+  async function drawCard(state, hooks) {
+    if (state.deck.length === 0 && state.discard.length > 0) {
+      state.deck = shuffle(state.discard.splice(0), state.rng);
+      await emit(hooks, 'reshuffle', {});
+    }
+    return state.deck.pop() || null;
+  }
+
+  /* ---- Power effects -------------------------------------------------------- */
+  async function applyPower(state, pi, power, agents, hooks) {
+    const p = state.players[pi];
+    const ag = agents[pi];
+    state.turn.power = power;
+    await emit(hooks, 'power-use', { player: pi, power });
+    switch (power.kind) {
+      case 'wild':
+      case 'score':
+        break; // takes effect at the scoring step
+      case 'guess': {
+        const guess = power.guess === 'color' ? await ag.chooseColor(state, pi) : await ag.chooseNumber(state, pi);
+        const c = await drawCard(state, hooks);
+        if (!c) break;
+        const match = power.guess === 'color' ? c.color === guess : c.num === guess;
+        if (match) p.tableau.push(c); else state.discard.push(c);
+        await emit(hooks, 'guess', { player: pi, type: power.guess, guess, card: c, match });
+        break;
+      }
+      case 'swap': {
+        const pairs = swapPairs(state, pi);
+        let ch = await ag.chooseSwap(state, pi, pairs);
+        if (!ch || !pairs.some(x => x.mine === ch.mine && x.theirs === ch.theirs)) ch = pairs[0];
+        const other = state.players[ch.other !== undefined ? ch.other : pairs.find(x => x.theirs === ch.theirs).other];
+        const mi = p.tableau.findIndex(c => c.id === ch.mine);
+        const oi = other.tableau.findIndex(c => c.id === ch.theirs);
+        const mine = p.tableau[mi], theirs = other.tableau[oi];
+        p.tableau[mi] = theirs; other.tableau[oi] = mine;
+        await emit(hooks, 'swap', { player: pi, other: other.id, mine, theirs });
+        break;
+      }
+      case 'pass': {
+        const n = state.players.length;
+        const given = [];
+        for (let i = 0; i < n; i++) {
+          let id = await agents[i].choosePassCard(state, i);
+          if (!state.players[i].hand.some(c => c.id === id)) id = state.players[i].hand[0].id;
+          given[i] = id;
+        }
+        const cards = given.map((id, i) => removeById(state.players[i].hand, id));
+        const moves = [];
+        for (let i = 0; i < n; i++) {
+          const to = (i - 1 + n) % n;
+          state.players[to].hand.push(cards[i]);
+          moves.push({ from: i, to, card: cards[i] });
+        }
+        await emit(hooks, 'pass', { player: pi, moves });
+        break;
+      }
+      case 'discard7': {
+        const pile = state.discard.slice();
+        let id = await ag.chooseDiscardPick(state, pi, pile);
+        if (!pile.some(c => c.id === id)) id = pile[pile.length - 1].id;
+        const c = removeById(state.discard, id);
+        p.tableau.push(c);
+        await emit(hooks, 'discard-pick', { player: pi, card: c });
+        break;
+      }
+    }
+  }
+
+  /* ---- A full turn ------------------------------------------------------------- */
+  async function runTurn(state, agents, hooks) {
+    const pi = state.current;
+    const p = state.players[pi];
+    const ag = agents[pi];
+    state.turn = { power: null };
+    await emit(hooks, 'turn-start', { player: pi });
+
+    // 1. Draw
+    const drawn = await drawCard(state, hooks);
+    if (drawn) p.hand.push(drawn);
+    await emit(hooks, 'draw', { player: pi, card: drawn });
+
+    // 2. Play
+    if (p.hand.length === 0) throw new Error('player has no cards');
+    let id = await ag.choosePlay(state, pi);
+    if (!p.hand.some(c => c.id === id)) id = p.hand[0].id;
+    const played = removeById(p.hand, id);
+    p.tableau.push(played);
+    await emit(hooks, 'play', { player: pi, card: played });
+
+    // 3. Take the mover
+    const matches = state.center && played.color === state.center.color;
+    if ((matches || hasMoverSymbol(played)) && state.mover !== pi) {
+      const from = state.mover;
+      state.mover = pi;
+      await emit(hooks, 'mover', { player: pi, from, reason: hasMoverSymbol(played) && !matches ? 'symbol' : 'color' });
+    }
+
+    // 4. Use a Power (needs the mover)
+    if (state.mover === pi) {
+      const opts = usablePowers(state, pi);
+      if (opts.some(o => o.feasible)) {
+        const choice = await ag.choosePower(state, pi, opts);
+        if (choice) {
+          const opt = opts.find(o => o.power.id === choice.id && o.feasible);
+          if (opt) await applyPower(state, pi, opt.power, agents, hooks);
+        }
+      }
+    } else {
+      await emit(hooks, 'no-mover', { player: pi });
+    }
+
+    // 5. Score
+    const triples = findTriples(p.tableau, state.turn.power);
+    if (triples.length) {
+      let ti = triples.length === 1 ? 0 : await ag.chooseTriple(state, pi, triples);
+      if (!(ti >= 0 && ti < triples.length)) ti = 0;
+      const triple = triples[ti];
+      const kind = tripleKind(triple, state.turn.power);
+      triple.forEach(c => state.discard.push(removeById(p.tableau, c.id)));
+      const gained = state.center;
+      p.powers.push(gained);
+      state.center = state.powerPile.pop() || null;
+      await emit(hooks, 'score', { player: pi, cards: triple, kind, power: gained, next: state.center });
+      if (p.powers.length >= RULES.WIN) {
+        state.winner = pi;
+        await emit(hooks, 'win', { player: pi });
+        return;
+      }
+    }
+
+    // 6. Discard down to five
+    if (p.tableau.length > RULES.MAX_TABLEAU) {
+      const n = p.tableau.length - RULES.MAX_TABLEAU;
+      let ids = await ag.chooseDiscards(state, pi, n);
+      ids = (ids || []).filter((x, i, a) => a.indexOf(x) === i && p.tableau.some(c => c.id === x)).slice(0, n);
+      while (ids.length < n) {
+        const extra = p.tableau.find(c => !ids.includes(c.id));
+        ids.push(extra.id);
+      }
+      const gone = ids.map(x => removeById(p.tableau, x));
+      gone.forEach(c => state.discard.push(c));
+      await emit(hooks, 'discard', { player: pi, cards: gone });
+    }
+
+    state.turn = null;
+    state.current = (state.current + 1) % state.players.length;
+    state.turnNo++;
+  }
+
+  async function playGame(state, agents, hooks, maxTurns) {
+    const cap = maxTurns || 600;
+    while (state.winner == null && state.turnNo < cap) await runTurn(state, agents, hooks);
+    return state;
+  }
+
+  return {
+    RULES, COLORS, COLOR_LABEL, POWERS, POWER_BY_ID, ALL_CARDS, CARD_BY_ID,
+    cardName, hasMoverSymbol, mulberry32, shuffle, combos3, removeById,
+    isSet, isRun, tripleKind, isScoringTriple, findTriples,
+    swapPairs, powerFeasibility, usablePowers,
+    newGame, drawCard, applyPower, runTurn, playGame,
+  };
+});
+
+</script>
+<script>
+/* Something Wild! - computer opponents.
+   Levels: easy, medium, hard, unpredictable. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./engine.js'));
+  else root.SWAI = factory(root.SW);
+})(typeof self !== 'undefined' ? self : this, function (SW) {
+  'use strict';
+  const { COLORS, ALL_CARDS, RULES, findTriples, swapPairs, usablePowers, combos3, isScoringTriple, hasMoverSymbol } = SW;
+
+  const LEVELS = ['easy', 'medium', 'hard', 'unpredictable'];
+
+  /* ---- helpers ---------------------------------------------------------- */
+  function pick(arr, rng) { return arr[Math.floor(rng() * arr.length)]; }
+
+  function buildCounts(state, me, counting) {
+    // uc[color][num] = how many copies we believe are still unseen
+    const uc = {};
+    COLORS.forEach(c => { uc[c] = {}; for (let n = 1; n <= 9; n++) uc[c][n] = 1; });
+    let total = 45;
+    if (counting) {
+      const seen = new Set();
+      state.players[me].hand.forEach(c => seen.add(c.id));
+      state.players.forEach(p => p.tableau.forEach(c => seen.add(c.id)));
+      state.discard.forEach(c => seen.add(c.id));
+      seen.forEach(id => { const c = SW.CARD_BY_ID[id]; uc[c.color][c.num] = 0; });
+      total = 45 - seen.size;
+    }
+    return { uc, total: Math.max(1, total) };
+  }
+
+  function pairAvail(a, b, uc) {
+    let av = 0;
+    if (a.num === b.num) {
+      COLORS.forEach(c => { av += uc[c][a.num]; });
+    } else if (a.color === b.color) {
+      const lo = Math.min(a.num, b.num), hi = Math.max(a.num, b.num), col = a.color;
+      if (hi - lo === 1) {
+        if (lo - 1 >= 1) av += uc[col][lo - 1];
+        if (hi + 1 <= 9) av += uc[col][hi + 1];
+      } else if (hi - lo === 2) av += uc[col][lo + 1];
+    }
+    return av;
+  }
+
+  /* How promising is this position? Higher = closer to scoring.
+     tab: cards in play, hand: cards held (after playing), held: do we/will we hold the mover */
+  function potential(tab, hand, ctx) {
+    const { uc, total, modes, useHand, held } = ctx;
+    const all = useHand ? tab.concat(hand) : tab.slice();
+    const inTab = new Set(tab.map(c => c.id));
+    let best = 0;
+    const K = [900, 220, 70, 12];
+    for (const tr of combos3(all)) {
+      const k = tr.reduce((s, c) => s + (inTab.has(c.id) ? 0 : 1), 0);
+      if (isScoringTriple(tr, null)) { best = Math.max(best, K[k]); continue; }
+      for (const m of modes) {
+        if (isScoringTriple(tr, m.power)) best = Math.max(best, K[k] * m.w);
+      }
+    }
+    // near-misses that a draw could finish
+    let near = 0;
+    for (let i = 0; i < all.length; i++) {
+      for (let j = i + 1; j < all.length; j++) {
+        const a = all[i], b = all[j];
+        const k = (inTab.has(a.id) ? 0 : 1) + (inTab.has(b.id) ? 0 : 1);
+        const av = pairAvail(a, b, uc);
+        if (!av) continue;
+        const p1 = 1 - Math.pow(1 - Math.min(1, av / total), 2);
+        near = Math.max(near, [40, 14, 4][k] * p1 * 3);
+      }
+    }
+    // score-mode partials (blue/red trio, 2-6-8)
+    for (const m of modes) {
+      if (!m.power || m.power.kind !== 'score') continue;
+      let cnt = 0;
+      if (m.power.mode === 'blue' || m.power.mode === 'red') {
+        cnt = all.filter(c => c.color === m.power.mode).length;
+      } else {
+        const have = new Set(all.filter(c => c.num === 2 || c.num === 6 || c.num === 8).map(c => c.num));
+        cnt = have.size;
+      }
+      if (cnt >= 2) near = Math.max(near, 26 * m.w);
+      else if (cnt === 1) near = Math.max(near, 4 * m.w);
+    }
+    // loose connectivity: reward cards that pair up with something
+    let links = 0;
+    for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++)
+      if (all[i].num === all[j].num ||
+          (all[i].color === all[j].color && Math.abs(all[i].num - all[j].num) <= 2)) links++;
+    return best + near + Math.min(links, 6) * 0.8;
+  }
+
+  function makeCtx(state, me, skill, handForCenter) {
+    const { uc, total } = buildCounts(state, me, skill.counting);
+    const p = state.players[me];
+    const modes = [{ power: null, w: 1 }];
+    const addMode = pw => {
+      if (pw && (pw.kind === 'wild' || pw.kind === 'score')) modes.push({ power: pw, w: 1 });
+    };
+    p.powers.forEach(addMode);
+    addMode(state.center);
+    return { uc, total, modes, useHand: skill.useHand, held: false, skill };
+  }
+
+  function withHeld(ctx, held) {
+    const modes = ctx.modes.map((m, i) => (i === 0 ? m : { power: m.power, w: held ? 1 : 0.45 }));
+    return { ...ctx, modes, held };
+  }
+
+  function moverBonus(state, me, held, hand) {
+    let b = 0;
+    if (held) b += 22;
+    else {
+      const cc = state.center && state.center.color;
+      if (hand.some(c => c.color === cc || c.num === 1)) b += 7;
+    }
+    return b;
+  }
+
+  /* Evaluate a final tableau: handle overflow trimming (>5 cards) */
+  function evalTab(state, me, tab, hand, ctx, held) {
+    const c2 = withHeld(ctx, held);
+    const bonus = moverBonus(state, me, held, hand);
+    if (tab.length <= RULES.MAX_TABLEAU) return potential(tab, hand, c2) + bonus;
+    let best = -1e9;
+    const drop = tab.length - RULES.MAX_TABLEAU;
+    const idxs = [];
+    for (let i = 0; i < tab.length; i++) idxs.push(i);
+    const subsets = drop === 1 ? idxs.map(i => [i]) : combos2(idxs);
+    for (const s of subsets) {
+      const kept = tab.filter((_, i) => !s.includes(i));
+      best = Math.max(best, potential(kept, hand, c2));
+    }
+    return best + bonus;
+  }
+  function combos2(arr) {
+    const out = [];
+    for (let i = 0; i < arr.length; i++) for (let j = i + 1; j < arr.length; j++) out.push([i, j]);
+    return out;
+  }
+
+  /* Value of finishing with this tableau + the Power used this turn */
+  function valueOutcome(state, me, tab, hand, power, held, ctx) {
+    const triples = findTriples(tab, power);
+    if (triples.length) {
+      const p = state.players[me];
+      if (p.powers.length + 1 >= RULES.WIN) return 1e7;
+      let best = -1e9;
+      for (const tr of triples) {
+        const ids = new Set(tr.map(c => c.id));
+        const left = tab.filter(c => !ids.has(c.id));
+        best = Math.max(best, evalTab(state, me, left, hand, ctx, held));
+      }
+      return 5000 + 1500 * (p.powers.length + 1) + best;
+    }
+    return evalTab(state, me, tab, hand, ctx, held);
+  }
+
+  function oppThreat(state, oi, uc, total) {
+    const o = state.players[oi];
+    const ctx = { uc, total, modes: [{ power: null, w: 1 }], useHand: false, held: false };
+    return potential(o.tableau, [], ctx) + o.powers.length * 120;
+  }
+
+  /* ---- Planning for medium/hard ------------------------------------------ */
+  function plan(state, me, skill, rng) {
+    const p = state.players[me];
+    const ctx = makeCtx(state, me, skill);
+    const hand = p.hand;
+    let best = null;
+    for (const card of hand) {
+      const newHand = hand.filter(c => c !== card);
+      const newTab = p.tableau.concat([card]);
+      const matches = state.center && card.color === state.center.color;
+      const held = state.mover === me || matches || hasMoverSymbol(card);
+      const noise = () => rng() * skill.noise;
+      const options = [];
+      const baseVal = valueOutcome(state, me, newTab, newHand, null, held, ctx);
+      options.push({ kind: 'none', val: baseVal });
+
+      if (held) {
+        const usable = usablePowers({ ...state, mover: me, players: state.players.map(pl => (pl === p ? { ...pl, tableau: newTab, hand: newHand } : pl)) }, me);
+        for (const u of usable) {
+          if (!u.feasible) continue;
+          const pw = u.power;
+          if (pw.kind === 'wild' || pw.kind === 'score') {
+            const v = valueOutcome(state, me, newTab, newHand, pw, held, ctx);
+            if (v >= 5000) options.push({ kind: 'power', id: pw.id, val: v });
+          } else if (pw.kind === 'swap') {
+            const tmpState = { ...state, players: state.players.map(pl => (pl === p ? { ...pl, tableau: newTab } : pl)) };
+            for (const pr of swapPairs(tmpState, me)) {
+              const mine = newTab.find(c => c.id === pr.mine);
+              const theirs = state.players[pr.other].tableau.find(c => c.id === pr.theirs);
+              const tab2 = newTab.map(c => (c === mine ? theirs : c));
+              let v = valueOutcome(state, me, tab2, newHand, null, held, ctx);
+              if (v < 5000 && !skill.risky) continue;
+              if (skill.disrupt && v < 5000) {
+                const ot = state.players[pr.other].tableau;
+                const before = oppThreat(state, pr.other, ctx.uc, ctx.total);
+                const after = oppThreat({ ...state, players: state.players.map((pl, i) => (i === pr.other ? { ...pl, tableau: ot.map(c => (c === theirs ? mine : c)) } : pl)) }, pr.other, ctx.uc, ctx.total);
+                v += 0.5 * (before - after);
+              }
+              if (v > baseVal + 0.5) options.push({ kind: 'swap', id: pw.id, pair: pr, val: v });
+            }
+          } else if (pw.kind === 'discard7' && newTab.some(c => c.num === 7)) {
+            for (const d of state.discard) {
+              const v = valueOutcome(state, me, newTab.concat([d]), newHand, null, held, ctx);
+              if (v < 5000 && !skill.risky) continue;
+              if (v > baseVal + 0.5) options.push({ kind: 'pick', id: pw.id, pick: d.id, val: v });
+            }
+          } else if (pw.kind === 'guess' && skill.risky) {
+            // expected value of guessing, using what we know is unseen
+            const unseen = ALL_CARDS.filter(c => ctx.uc[c.color][c.num] > 0);
+            const pool = unseen.length ? unseen : ALL_CARDS;
+            const evFor = pred => {
+              const hit = pool.filter(pred);
+              if (!hit.length) return -1e9;
+              const pHit = hit.length / pool.length;
+              const vs = hit.map(c => valueOutcome(state, me, newTab.concat([c]), newHand, null, held, ctx));
+              const avg = vs.reduce((a, b) => a + b, 0) / vs.length;
+              return pHit * avg + (1 - pHit) * baseVal;
+            };
+            if (pw.guess === 'color') {
+              let bc = null, bv = -1e9;
+              COLORS.forEach(col => { const v = evFor(c => c.color === col); if (v > bv) { bv = v; bc = col; } });
+              if (bv > baseVal + 0.5) options.push({ kind: 'guess', id: pw.id, color: bc, val: bv });
+            } else {
+              let bn = null, bv = -1e9;
+              for (let n = 1; n <= 9; n++) { const v = evFor(c => c.num === n); if (v > bv) { bv = v; bn = n; } }
+              if (bv > baseVal + 0.5) options.push({ kind: 'guess', id: pw.id, number: bn, val: bv });
+            }
+          }
+          // 'pass' is never worth planning around
+        }
+      }
+      for (const o of options) {
+        const total = o.val + noise();
+        if (!best || total > best.total) best = { total, cardId: card.id, option: o };
+      }
+    }
+    return best;
+  }
+
+  /* ---- Agents ------------------------------------------------------------------ */
+  function baseAgent(rng) {
+    return {
+      choosePassCard: (s, i) => pick(s.players[i].hand, rng).id,
+      chooseTriple: (s, i, triples) => Math.floor(rng() * triples.length),
+      chooseDiscards: (s, i, n) => {
+        const t = s.players[i].tableau.slice();
+        const out = [];
+        while (out.length < n) out.push(t.splice(Math.floor(rng() * t.length), 1)[0].id);
+        return out;
+      },
+    };
+  }
+
+  function easyAgent(rng, powerProb) {
+    const a = baseAgent(rng);
+    const pp = powerProb == null ? 0.3 : powerProb;
+    let plan_ = null;
+    a.choosePlay = (s, i) => {
+      const hand = s.players[i].hand;
+      plan_ = { use: rng() < pp };
+      return pick(hand, rng).id;
+    };
+    a.choosePower = (s, i, opts) => {
+      if (!plan_ || !plan_.use) return null;
+      const f = opts.filter(o => o.feasible);
+      return f.length ? { id: pick(f, rng).power.id } : null;
+    };
+    a.chooseColor = () => pick(COLORS, rng);
+    a.chooseNumber = () => 1 + Math.floor(rng() * 9);
+    a.chooseSwap = (s, i, pairs) => pick(pairs, rng);
+    a.chooseDiscardPick = (s, i, pile) => pick(pile, rng).id;
+    return a;
+  }
+
+  function thinkingAgent(skill, rng) {
+    const a = baseAgent(rng);
+    let cur = null;
+    const ctxFor = (s, i) => makeCtx(s, i, skill);
+    a.choosePlay = (s, i) => { cur = plan(s, i, skill, rng); return cur.cardId; };
+    a.choosePower = (s, i, opts) => {
+      if (!cur || cur.option.kind === 'none') return null;
+      const o = opts.find(x => x.power.id === cur.option.id && x.feasible);
+      return o ? { id: o.power.id } : null;
+    };
+    a.chooseColor = () => (cur && cur.option.color) || pick(COLORS, rng);
+    a.chooseNumber = () => (cur && cur.option.number) || 1 + Math.floor(rng() * 9);
+    a.chooseSwap = (s, i, pairs) => {
+      if (cur && cur.option.pair) {
+        const m = pairs.find(p => p.mine === cur.option.pair.mine && p.theirs === cur.option.pair.theirs);
+        if (m) return m;
+      }
+      return pairs[0];
+    };
+    a.chooseDiscardPick = (s, i, pile) => {
+      if (cur && cur.option.pick && pile.some(c => c.id === cur.option.pick)) return cur.option.pick;
+      // fall back: best by evaluation
+      const p = s.players[i], ctx = ctxFor(s, i);
+      let best = null;
+      for (const d of pile) {
+        const v = valueOutcome(s, i, p.tableau.concat([d]), p.hand, null, true, ctx);
+        if (!best || v > best.v) best = { v, id: d.id };
+      }
+      return best.id;
+    };
+    a.choosePassCard = (s, i) => {
+      // give away the card that hurts least to lose
+      const p = s.players[i], ctx = ctxFor(s, i);
+      let best = null;
+      for (const c of p.hand) {
+        const v = evalTab(s, i, p.tableau, p.hand.filter(x => x !== c), ctx, s.mover === i);
+        if (!best || v > best.v) best = { v, id: c.id };
+      }
+      return best.id;
+    };
+    a.chooseTriple = (s, i, triples) => {
+      const p = s.players[i], ctx = ctxFor(s, i);
+      let best = null;
+      triples.forEach((tr, idx) => {
+        const ids = new Set(tr.map(c => c.id));
+        const v = evalTab(s, i, p.tableau.filter(c => !ids.has(c.id)), p.hand, ctx, s.mover === i);
+        if (!best || v > best.v) best = { v, idx };
+      });
+      return best.idx;
+    };
+    a.chooseDiscards = (s, i, n) => {
+      const p = s.players[i], ctx = ctxFor(s, i);
+      const idxs = p.tableau.map((_, k) => k);
+      const subsets = n === 1 ? idxs.map(k => [k]) : n === 2 ? combos2(idxs) : [idxs.slice(0, n)];
+      let best = null;
+      for (const sub of subsets) {
+        const kept = p.tableau.filter((_, k) => !sub.includes(k));
+        const v = potential(kept, p.hand, withHeld(ctx, s.mover === i));
+        if (!best || v > best.v) best = { v, sub };
+      }
+      return best.sub.map(k => p.tableau[k].id);
+    };
+    return a;
+  }
+
+  const SKILLS = {
+    medium: { useHand: false, counting: false, risky: false, disrupt: false, noise: 6 },
+    hard:   { useHand: true,  counting: true,  risky: true,  disrupt: true,  noise: 1 },
+  };
+
+  function unpredictableAgent(rng) {
+    const styles = {
+      hard: thinkingAgent(SKILLS.hard, rng),
+      medium: thinkingAgent(SKILLS.medium, rng),
+      chaos: easyAgent(rng, 0.9),
+      lucky: easyAgent(rng, 0.5),
+    };
+    const weights = [['hard', 34], ['medium', 26], ['chaos', 22], ['lucky', 18]];
+    let mood = 'medium';
+    const roll = () => {
+      let r = rng() * 100;
+      for (const [k, w] of weights) { if ((r -= w) < 0) return k; }
+      return 'medium';
+    };
+    const a = {};
+    a.choosePlay = (s, i) => { mood = roll(); return styles[mood].choosePlay(s, i); };
+    ['choosePower', 'chooseColor', 'chooseNumber', 'chooseSwap', 'chooseDiscardPick',
+     'choosePassCard', 'chooseTriple', 'chooseDiscards'].forEach(m => {
+      a[m] = (...args) => styles[mood][m](...args);
+    });
+    a.mood = () => mood;
+    return a;
+  }
+
+  /* Easy: mostly random, but now and then spots a sensible play (so a kid can lose to it, occasionally). */
+  function easyMixAgent(rng, smartProb) {
+    const rand = easyAgent(rng, 0.3);
+    const smart = thinkingAgent(SKILLS.medium, rng);
+    let cur = rand;
+    const a = {};
+    a.choosePlay = (s, i) => { cur = rng() < smartProb ? smart : rand; return cur.choosePlay(s, i); };
+    ['choosePower', 'chooseColor', 'chooseNumber', 'chooseSwap', 'chooseDiscardPick',
+     'choosePassCard', 'chooseTriple', 'chooseDiscards'].forEach(m => {
+      a[m] = (...args) => cur[m](...args);
+    });
+    return a;
+  }
+
+  function createAgent(level, rng) {
+    rng = rng || Math.random;
+    if (level === 'easy') return easyMixAgent(rng, 0.4);
+    if (level === 'medium') return thinkingAgent(SKILLS.medium, rng);
+    if (level === 'hard') return thinkingAgent(SKILLS.hard, rng);
+    if (level === 'unpredictable') return unpredictableAgent(rng);
+    throw new Error('unknown level ' + level);
+  }
+
+  /* A suggestion for the human player's hint button (uses the Hard brain, no randomness). */
+  function suggest(state, me) {
+    const best = plan(state, me, { ...SKILLS.hard, noise: 0 }, () => 0.5);
+    if (!best) return null;
+    const o = best.option;
+    let why = 'builds toward a set or run';
+    if (o.kind === 'power') why = 'sets up a score with a Power';
+    else if (o.kind !== 'none') why = 'sets up a good Power play';
+    return { cardId: best.cardId, why, option: o };
+  }
+
+  return { LEVELS, createAgent, suggest, _thinkingAgent: thinkingAgent, _SKILLS: SKILLS };
+});
+
+</script>
+<script>
+/* Something Wild! - procedural art.
+   Original "vinyl figure" style characters (big heads, black bead eyes) drawn as SVG,
+   plus icons for the Power cards. No external assets, so it works offline. */
+(function (root, factory) {
+  root.SWART = factory(root.SW);
+})(typeof self !== 'undefined' ? self : this, function (SW) {
+  'use strict';
+  const { COLORS } = SW;
+
+  const PAL = {
+    red:    { c: '#e8404e', d: '#a8212c', l: '#ff9aa0' },
+    blue:   { c: '#1f7fd1', d: '#14518a', l: '#8cc4f2' },
+    green:  { c: '#16a58a', d: '#0c6b59', l: '#7fdcc8' },
+    yellow: { c: '#f5b01c', d: '#9a6a00', l: '#ffe08a' },
+    purple: { c: '#7b4cc0', d: '#4d2a85', l: '#c4a6ee' },
+  };
+  const NAMES = {
+    red:    ['Ember', 'Rally', 'Cinder', 'Dash', 'Ruby', 'Crimson', 'Flare', 'Rocket', 'Cherry'],
+    blue:   ['Azure', 'Skye', 'Tide', 'Frost', 'Cobalt', 'Wave', 'Indigo', 'Jet', 'Sapphire'],
+    green:  ['Sprout', 'Fern', 'Jade', 'Moss', 'Clover', 'Viper', 'Lime', 'Ivy', 'Emerald'],
+    yellow: ['Spark', 'Sunny', 'Amber', 'Bolt', 'Goldie', 'Honey', 'Zap', 'Beam', 'Nova'],
+    purple: ['Violet', 'Plum', 'Shade', 'Orchid', 'Mystic', 'Twilight', 'Grape', 'Lilac', 'Phantom'],
+  };
+  const SKIN = ['#f6d2b0', '#e9b98f', '#c98e63', '#9a6642', '#6e4529', '#fbe0c8'];
+  const HAIR = ['#2b1b12', '#5b3a1e', '#e6b34a', '#c9402b', '#3a3a46', '#e9e9ef'];
+
+  const charName = c => NAMES[c.color][c.num - 1];
+
+  function emblem(color, a) {
+    switch (color) {
+      case 'red':    return `<path d="M50 92 C57 99 59 104 55 110 C53 114 47 114 45 110 C41 105 47 102 50 92Z" fill="${a}"/>`;
+      case 'blue':   return `<path d="M39 104 Q44.5 96 50 104 T61 104" stroke="${a}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+      case 'green':  return `<path d="M41 111 Q41 93 59 93 Q59 111 41 111Z" fill="${a}"/>`;
+      case 'yellow': return `<path d="M53 91 L41 106 L50 106 L46 119 L60 102 L51 102Z" fill="${a}"/>`;
+      default:       return `<path d="M50 92 L53.5 100 L62 101 L55.5 107 L57.5 115 L50 110.5 L42.5 115 L44.5 107 L38 101 L46.5 100Z" fill="${a}"/>`;
+    }
+  }
+
+  const FIG = {};
+  function figureSVG(color, num) {
+    const key = color + num;
+    if (FIG[key]) return FIG[key];
+    const p = PAL[color];
+    const ci = COLORS.indexOf(color);
+    const skin = SKIN[(num * 3 + ci) % SKIN.length];
+    const hair = HAIR[(num + ci * 2) % HAIR.length];
+    const suit = p.d, acc = p.l;
+    let back = '', front = '';
+    switch (num) {
+      case 1: // hood
+        back = `<path d="M11 64 Q8 12 50 10 Q92 12 89 64 Q81 33 50 31 Q19 33 11 64Z" fill="${suit}"/><path d="M11 64 Q6 88 22 92 L27 70Z M89 64 Q94 88 78 92 L73 70Z" fill="${suit}"/>`;
+        break;
+      case 2: // spiky hair
+        back = `<path d="M17 42 L11 20 L27 29 L33 7 L46 24 L58 5 L66 24 L83 11 L83 36 Q50 22 17 42Z" fill="${hair}"/>`;
+        break;
+      case 3: // bun
+        back = `<circle cx="78" cy="15" r="10" fill="${hair}"/><path d="M17 44 Q17 12 50 12 Q83 12 83 44 Q70 27 50 27 Q30 27 17 44Z" fill="${hair}"/><rect x="70" y="20" width="14" height="5" rx="2" fill="${acc}" transform="rotate(-25 77 22)"/>`;
+        break;
+      case 4: // headband
+        back = `<path d="M17 44 Q17 12 50 12 Q83 12 83 44 Q70 27 50 27 Q30 27 17 44Z" fill="${hair}"/>`;
+        front = `<rect x="17" y="29" width="66" height="9" fill="${acc}"/><path d="M50 27.5 L52.2 32 L57 32.6 L53.5 35.8 L54.4 40.5 L50 38.2 L45.6 40.5 L46.5 35.8 L43 32.6 L47.8 32Z" fill="#fff"/>`;
+        break;
+      case 5: // beanie
+        back = `<path d="M18 40 Q18 6 50 6 Q82 6 82 40Z" fill="${suit}"/><circle cx="50" cy="6" r="6.5" fill="#fff"/>`;
+        front = `<rect x="15" y="35" width="70" height="10" rx="5" fill="${acc}"/>`;
+        break;
+      case 6: // goggles
+        back = `<path d="M17 44 Q17 12 50 12 Q83 12 83 44 Q70 27 50 27 Q30 27 17 44Z" fill="${hair}"/>`;
+        front = `<rect x="14" y="50" width="72" height="7" fill="#2f2f38"/><circle cx="37" cy="56" r="13" fill="rgba(255,255,255,.28)" stroke="#2f2f38" stroke-width="4.5"/><circle cx="63" cy="56" r="13" fill="rgba(255,255,255,.28)" stroke="#2f2f38" stroke-width="4.5"/>`;
+        break;
+      case 7: // mohawk
+        back = `<path d="M40 24 L44 3 L50 15 L56 3 L60 24Z" fill="${acc}"/>`;
+        break;
+      case 8: // mask
+        front = `<path d="M17 44 Q50 36 83 44 L83 69 Q50 77 17 69Z" fill="${suit}"/><ellipse cx="37" cy="57" rx="11" ry="12" fill="#fff"/><ellipse cx="63" cy="57" rx="11" ry="12" fill="#fff"/>`;
+        break;
+      default: // crown
+        back = `<path d="M17 44 Q17 20 50 20 Q83 20 83 44 Q70 31 50 31 Q30 31 17 44Z" fill="${hair}"/>`;
+        front = `<path d="M25 26 L29 4 L40 16 L50 1 L60 16 L71 4 L75 26Z" fill="#f6c22d" stroke="#b9860b" stroke-width="2" stroke-linejoin="round"/><circle cx="50" cy="19" r="2.6" fill="#e8404e"/><circle cx="35" cy="21" r="2" fill="#1f7fd1"/><circle cx="65" cy="21" r="2" fill="#16a58a"/>`;
+    }
+    const eyeY = num === 8 ? 57 : 56;
+    const eyes = `<ellipse cx="37" cy="${eyeY}" rx="6" ry="8" fill="#17171c"/><ellipse cx="63" cy="${eyeY}" rx="6" ry="8" fill="#17171c"/>` +
+      `<circle cx="39.2" cy="${eyeY - 3}" r="2.2" fill="#fff"/><circle cx="65.2" cy="${eyeY - 3}" r="2.2" fill="#fff"/><circle cx="35.5" cy="${eyeY + 3}" r="1.1" fill="#fff"/><circle cx="61.5" cy="${eyeY + 3}" r="1.1" fill="#fff"/>`;
+    const m = num % 3;
+    const mouth = m === 0 ? `<path d="M43 71 Q50 77 57 71" stroke="#6b2d1f" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
+      : m === 1 ? `<path d="M43 70 Q50 80 57 70Z" fill="#6b2d1f"/><path d="M46 73 Q50 76 54 73" fill="#e8747c"/>`
+      : `<ellipse cx="50" cy="73" rx="3.4" ry="3" fill="#6b2d1f"/>`;
+    const svg = `<svg viewBox="0 0 100 124" preserveAspectRatio="xMidYMax meet" aria-hidden="true">` +
+      `<ellipse cx="50" cy="121" rx="34" ry="4.5" fill="rgba(0,0,0,.2)"/>` +
+      `<path d="M20 124 L25 88 Q50 77 75 88 L80 124 Z" fill="${suit}"/>` +
+      `<ellipse cx="22" cy="100" rx="7.5" ry="11" fill="${suit}"/><ellipse cx="78" cy="100" rx="7.5" ry="11" fill="${suit}"/>` +
+      emblem(color, acc) +
+      `<ellipse cx="50" cy="85" rx="30" ry="5.5" fill="rgba(0,0,0,.2)"/>` +
+      `<rect x="16" y="19" width="68" height="64" rx="27" fill="${skin}"/>` +
+      back + eyes +
+      `<circle cx="27" cy="68" r="5" fill="#ff7b86" opacity=".28"/><circle cx="73" cy="68" r="5" fill="#ff7b86" opacity=".28"/>` +
+      mouth + front + `</svg>`;
+    FIG[key] = svg;
+    return svg;
+  }
+
+  /* little round head for the opponents' avatars */
+  function avatarSVG(i) {
+    const color = COLORS[(i * 2 + 1) % COLORS.length];
+    const p = PAL[color];
+    const skin = SKIN[(i * 2 + 1) % SKIN.length];
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="${p.c}"/>` +
+      `<rect x="20" y="24" width="60" height="56" rx="24" fill="${skin}"/>` +
+      `<path d="M16 50 Q14 8 50 8 Q86 8 84 50 Q76 28 50 27 Q24 28 16 50Z" fill="${p.d}"/>` +
+      `<ellipse cx="38" cy="54" rx="5.5" ry="7.5" fill="#17171c"/><ellipse cx="62" cy="54" rx="5.5" ry="7.5" fill="#17171c"/>` +
+      `<circle cx="40" cy="51" r="2" fill="#fff"/><circle cx="64" cy="51" r="2" fill="#fff"/>` +
+      `<path d="M43 68 Q50 74 57 68" stroke="#6b2d1f" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
+  }
+
+  /* the Mover: a golden hero figure with a star mask */
+  function moverSVG() {
+    return `<svg viewBox="0 0 100 130" aria-hidden="true">` +
+      `<ellipse cx="50" cy="123" rx="36" ry="6" fill="#222"/><ellipse cx="50" cy="119" rx="36" ry="6" fill="#444"/>` +
+      `<path d="M22 118 L27 90 Q50 80 73 90 L78 118 Z" fill="#23304a"/>` +
+      `<ellipse cx="23" cy="102" rx="7.5" ry="11" fill="#23304a"/><ellipse cx="77" cy="102" rx="7.5" ry="11" fill="#23304a"/>` +
+      `<path d="M50 93 L53.5 101 L62 102 L55.5 108 L57.5 116 L50 111.5 L42.5 116 L44.5 108 L38 102 L46.5 101Z" fill="#f6c22d"/>` +
+      `<ellipse cx="50" cy="87" rx="30" ry="5.5" fill="rgba(0,0,0,.25)"/>` +
+      `<rect x="16" y="21" width="68" height="64" rx="27" fill="#f6c22d"/>` +
+      `<path d="M16 50 Q50 38 84 50 L84 70 Q50 80 16 70Z" fill="#23304a"/>` +
+      `<path d="M50 16 L55 26 L66 27 L58 34 L60 45 L50 39 L40 45 L42 34 L34 27 L45 26Z" fill="#fff" opacity=".0"/>` +
+      `<ellipse cx="37" cy="60" rx="11" ry="12" fill="#fff"/><ellipse cx="63" cy="60" rx="11" ry="12" fill="#fff"/>` +
+      `<ellipse cx="37" cy="60" rx="6" ry="8" fill="#17171c"/><ellipse cx="63" cy="60" rx="6" ry="8" fill="#17171c"/>` +
+      `<circle cx="39.2" cy="57" r="2.2" fill="#fff"/><circle cx="65.2" cy="57" r="2.2" fill="#fff"/>` +
+      `<path d="M50 9 L53 17 L61.5 17.5 L55 23 L57 31 L50 26.5 L43 31 L45 23 L38.5 17.5 L47 17Z" fill="#e8404e"/>` +
+      `<path d="M43 74 Q50 80 57 74" stroke="#6b2d1f" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
+  }
+
+  /* the grey "take a mover" silhouette printed on the 1 cards */
+  function moverSymbolSVG() {
+    return `<svg viewBox="0 0 30 40" aria-hidden="true"><circle cx="15" cy="12" r="9.5" fill="#9aa3ad"/>` +
+      `<path d="M3 39 Q5 22 15 22 Q25 22 27 39Z" fill="#9aa3ad"/>` +
+      `<text x="15" y="16.5" text-anchor="middle" font-size="13" font-weight="900" fill="#fff" font-family="Arial,sans-serif">?</text></svg>`;
+  }
+
+  /* ---- Power icons (viewBox 0 0 72 44) ---------------------------------- */
+  const miniCard = (x, y, fill, label, rot) =>
+    `<g transform="rotate(${rot || 0} ${x + 7} ${y + 10})"><rect x="${x}" y="${y}" width="14" height="20" rx="2.5" fill="${fill}" stroke="#fff" stroke-width="1.5"/>` +
+    (label ? `<text x="${x + 7}" y="${y + 14.5}" text-anchor="middle" font-size="10" font-weight="900" fill="#fff" font-family="Arial,sans-serif">${label}</text>` : '') + `</g>`;
+  const trophy = (x, y) =>
+    `<g transform="translate(${x} ${y})"><path d="M-8 -9 H8 V0 Q8 7 0 7 Q-8 7 -8 0Z" fill="#aab2bd"/><path d="M-8 -6 H-13 Q-13 2 -7 3 M8 -6 H13 Q13 2 7 3" stroke="#aab2bd" stroke-width="2.4" fill="none"/><rect x="-2" y="6" width="4" height="6" fill="#aab2bd"/><rect x="-7" y="11" width="14" height="4" rx="1.5" fill="#aab2bd"/></g>`;
+  const numBox = (x, y, t) =>
+    `<rect x="${x}" y="${y}" width="15" height="20" rx="2.5" fill="#17171c"/><text x="${x + 7.5}" y="${y + 15}" text-anchor="middle" font-size="14" font-weight="900" fill="#fff" font-family="Arial,sans-serif">${t}</text>`;
+  const qBox = (x, y) =>
+    `<rect x="${x}" y="${y}" width="15" height="20" rx="2.5" fill="#fff" stroke="#17171c" stroke-width="2"/><text x="${x + 7.5}" y="${y + 15.5}" text-anchor="middle" font-size="14" font-weight="900" fill="#17171c" font-family="Arial,sans-serif">?</text>`;
+  const playArrow = (x, y) => `<circle cx="${x}" cy="${y}" r="10" fill="#aab2bd"/><path d="M${x - 3} ${y - 5.5} L${x + 6} ${y} L${x - 3} ${y + 5.5}Z" fill="#fff"/>`;
+  const cloud = (x, y, inner) =>
+    `<g transform="translate(${x} ${y})"><path d="M4 22 Q-4 22 -2 14 Q-4 6 5 6 Q8 -2 17 2 Q24 -4 30 3 Q39 2 38 11 Q44 17 36 22Z" fill="#e9ecf2" stroke="#aab2bd" stroke-width="1.5"/>${inner}</g>`;
+
+  function powerIcon(id) {
+    let g = '';
+    switch (id) {
+      case 'blue3':  g = miniCard(8, 10, PAL.blue.c, '', -14) + miniCard(17, 8, PAL.blue.c, '', 0) + miniCard(26, 10, PAL.blue.c, '', 14) + trophy(55, 17); break;
+      case 'red3':   g = miniCard(8, 10, PAL.red.c, '', -14) + miniCard(17, 8, PAL.red.c, '', 0) + miniCard(26, 10, PAL.red.c, '', 14) + trophy(55, 17); break;
+      case 'n268':   g = numBox(4, 10, '2') + numBox(21, 10, '6') + numBox(38, 10, '8') + trophy(63, 17); break;
+      case 'redwild': g = miniCard(10, 10, PAL.red.c, '', 0) + `<text x="36" y="26" text-anchor="middle" font-size="18" font-weight="900" fill="#17171c" font-family="Arial,sans-serif">=</text>` + qBox(46, 10); break;
+      case 'threewild': g = numBox(10, 10, '3') + `<text x="36" y="26" text-anchor="middle" font-size="18" font-weight="900" fill="#17171c" font-family="Arial,sans-serif">=</text>` + qBox(46, 10); break;
+      case 'guesscolor':
+        g = cloud(2, 5, `<rect x="8" y="9" width="5" height="9" fill="${PAL.red.c}"/><rect x="14" y="9" width="5" height="9" fill="${PAL.yellow.c}"/><rect x="20" y="9" width="5" height="9" fill="${PAL.green.c}"/><rect x="26" y="9" width="5" height="9" fill="${PAL.blue.c}"/>`) + playArrow(60, 22); break;
+      case 'guessnum':
+        g = cloud(2, 5, `<text x="20" y="19" text-anchor="middle" font-size="14" font-weight="900" fill="#17171c" font-family="Arial,sans-serif">#?</text>`) + playArrow(60, 22); break;
+      case 'swap':
+        g = miniCard(6, 14, PAL.purple.c, '', -8) + miniCard(50, 14, PAL.green.c, '', 8) + `<path d="M24 14 Q36 2 48 12 M44 8 L48 12 L43 15" stroke="#17171c" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M48 32 Q36 44 24 34 M28 38 L24 34 L29 31" stroke="#17171c" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`; break;
+      case 'seven':
+        g = numBox(6, 10, '7') + miniCard(26, 12, '#9aa3ad', '', -8) + miniCard(32, 12, '#7d8793', '', 0) + playArrow(60, 22); break;
+      case 'pass':
+        g = miniCard(8, 16, PAL.yellow.c, '', -10) + miniCard(48, 16, PAL.blue.c, '', 10) + `<path d="M22 12 Q36 -2 50 12 M45 6 L50 12 L43 14" stroke="#17171c" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`; break;
+      default: g = '';
+    }
+    return `<svg viewBox="0 0 72 44" aria-hidden="true">${g}</svg>`;
+  }
+
+  return { PAL, NAMES, charName, figureSVG, avatarSVG, moverSVG, moverSymbolSVG, powerIcon };
+});
+
+</script>
+<script>
+/* Something Wild! - user interface. Player 0 is the human; everyone else is a computer opponent. */
+(function () {
+  'use strict';
+  const SW = window.SW, AI = window.SWAI, ART = window.SWART;
+  const { COLORS, COLOR_LABEL, POWERS, cardName } = SW;
+  const LEVEL_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard', unpredictable: 'Unpredictable' };
+  const LEVEL_SHORT = { easy: 'Easy', medium: 'Med', hard: 'Hard', unpredictable: '???' };
+  const BOT_NAMES = ['Pixel', 'Gadget', 'Rascal'];
+  const ABORT = { abort: true };
+  const $ = (s, el) => (el || document).querySelector(s);
+
+  /* ---------- settings ---------- */
+  const DEFAULTS = { players: 3, levels: ['medium', 'hard', 'medium'], speed: 'normal', first: 'random' };
+  function loadSettings() {
+    try {
+      const s = JSON.parse(localStorage.getItem('sw-settings') || 'null');
+      if (s && s.players >= 2 && s.players <= 4 && Array.isArray(s.levels)) return Object.assign({}, DEFAULTS, s);
+    } catch (e) { /* storage unavailable */ }
+    return JSON.parse(JSON.stringify(DEFAULTS));
+  }
+  function saveSettings() { try { localStorage.setItem('sw-settings', JSON.stringify(U.settings)); } catch (e) { /* ignore */ } }
+
+  const U = {
+    screen: 'setup', settings: loadSettings(), state: null, agents: null, token: 0,
+    ask: null, status: '', log: [], fresh: new Set(), hint: null, sheetRes: null, sheetDismiss: false,
+  };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const scale = () => (U.settings.speed === 'fast' ? 0.35 : 1);
+
+  /* ---------- HTML builders ---------- */
+  function cardHTML(c, o) {
+    o = o || {};
+    const cls = ['card', 'c-' + c.color];
+    if (o.size) cls.push(o.size);
+    if (U.fresh.has(c.id)) cls.push('fresh');
+    const a = U.ask;
+    if (a && a.ids && a.ids.indexOf(c.id) >= 0) cls.push('selectable');
+    if (a && a.chosen === c.id) cls.push('picked');
+    if (U.hint === c.id) cls.push('hinted');
+    if (o.hand && a && a.dragPlay && a.ids.indexOf(c.id) >= 0) cls.push('draggable');
+    return `<div class="${cls.join(' ')}" data-card="${c.id}" role="img" aria-label="${cardName(c)}">` +
+      `<div class="num">${c.num}</div>` +
+      (c.num === 1 ? `<div class="msym" title="Take a Mover">${ART.moverSymbolSVG()}</div>` : '') +
+      `<div class="art">${ART.figureSVG(c.color, c.num)}</div><div class="nm" data-n="${c.num}">${ART.charName(c)}</div></div>`;
+  }
+  const staticCard = (c, size) => { const f = U.fresh; U.fresh = new Set(); const a = U.ask; U.ask = null; const h = U.hint; U.hint = null; const r = cardHTML(c, { size }); U.fresh = f; U.ask = a; U.hint = h; return r; };
+  const backHTML = size => `<div class="card back ${size || ''}"></div>`;
+  function powerHTML(p, o) {
+    o = o || {};
+    return `<div class="pcard c-${p.color} ${o.size || ''} ${o.disabled ? 'disabled' : ''}" data-power="${p.id}">` +
+      `<div class="ptop">${p.name}</div><div class="pico">${ART.powerIcon(p.id)}</div><div class="ptxt">${p.text}</div></div>`;
+  }
+  const chipHTML = p => `<button class="pchip c-${p.color}" data-act="power:${p.id}" aria-label="${p.name}">${ART.powerIcon(p.id)}</button>`;
+  const pipsHTML = p => `<div class="pips" aria-label="${p.powers.length} of 3 Powers">` +
+    [0, 1, 2].map(i => `<span class="pip ${i < p.powers.length ? 'on' : ''}"></span>`).join('') + '</div>';
+  const moverChip = () => `<div class="moverchip" title="Has the Mover">${ART.moverSVG()}</div>`;
+
+  function oppHTML(p) {
+    const s = U.state;
+    const active = s.current === p.id && s.winner == null;
+    return `<div class="opp ${active ? 'active' : ''}">` +
+      `<div class="h1"><div class="av">${ART.avatarSVG(p.id)}</div><b class="who">${p.name}</b>${s.mover === p.id ? moverChip() : ''}</div>` +
+      `<div class="h2"><span class="lvl ${p.level}">${LEVEL_SHORT[p.level]}</span>` +
+      `<span class="handcount"><span class="mb"></span>${p.hand.length}</span>${pipsHTML(p)}</div>` +
+      `<div class="tabrow ${p.tableau.length ? '' : 'empty'}">${p.tableau.map(c => cardHTML(c, { size: 'sm' })).join('')}</div>` +
+      `<div class="chips">${p.powers.map(chipHTML).join('')}</div></div>`;
+  }
+
+  function centerHTML() {
+    const s = U.state;
+    const top = s.discard.length ? staticCard(s.discard[s.discard.length - 1], '') : '<div class="card empty"></div>';
+    const holder = s.mover == null ? 'Up for grabs' : (s.mover === 0 ? 'You have it' : s.players[s.mover].name + ' has it');
+    return `<div class="center">` +
+      `<div class="row">` +
+      `<div class="pile">${backHTML('')}<span class="count">Deck ${s.deck.length}</span></div>` +
+      `<button class="pile discard" data-act="discard" aria-label="Look through the discard pile">${top}<span class="count">Discard ${s.discard.length}</span></button>` +
+      `<div class="centerpower">${s.center ? powerHTML(s.center, { size: 'big' }) : ''}` +
+      (s.center ? `<span class="hint c-${s.center.color}"><i class="dot"></i>Play ${COLOR_LABEL[s.center.color]} or a 1 to grab the Mover</span>` : '') + `</div>` +
+      `<div class="moverbox ${s.mover != null ? 'held' : ''}"><div class="tok">${ART.moverSVG()}</div>${holder}</div>` +
+      `</div>` +
+      `<div class="ticker">${U.log.slice(-2).map(m => `<div>${m}</div>`).join('')}</div></div>`;
+  }
+
+  function meHTML() {
+    const s = U.state, me = s.players[0];
+    const active = s.current === 0 && s.winner == null;
+    return `<div class="me ${active ? 'active' : ''}">` +
+      `<div class="head"><b class="who">You</b>${s.mover === 0 ? moverChip() : ''}<div class="chips">${me.powers.map(chipHTML).join('')}</div>${pipsHTML(me)}</div>` +
+      `<div class="tabrow ${me.tableau.length ? '' : 'empty'}">${me.tableau.map(c => cardHTML(c, { size: 'md' })).join('')}</div></div>` +
+      `<div class="hand">${me.hand.map(c => cardHTML(c, { hand: true })).join('')}</div>`;
+  }
+
+  function promptHTML() {
+    const a = U.ask;
+    if (a) {
+      const btns = (a.buttons || []).map(b =>
+        `<button class="pbtn ${b.primary ? 'primary' : ''}" data-btn="${b.id}" ${b.needsChoice && a.chosen == null ? 'disabled' : ''}>${b.label}</button>`).join('');
+      return `<div class="promptbar"><div class="msg">${a.text}${a.sub ? `<small>${a.sub}</small>` : ''}</div>${btns}</div>`;
+    }
+    if (U.state && U.state.winner != null) {
+      const w = U.state.players[U.state.winner];
+      return `<div class="promptbar over"><div class="msg">Game over: ${w.human ? 'you win!' : w.name + ' wins'}</div>` +
+        `<button class="pbtn" data-act="menu-setup">Menu</button><button class="pbtn primary" data-act="again">Play again</button></div>`;
+    }
+    return `<div class="promptbar"><div class="msg ${U.status ? 'dots' : ''}">${U.status || ''}</div></div>`;
+  }
+
+  function topbar() {
+    return `<div class="topbar"><div class="logo">Something <b>Wild!</b></div>` +
+      `<button class="iconbtn" data-act="rules">Rules</button>` +
+      (U.screen === 'game' ? `<button class="iconbtn" data-act="menu" aria-label="Menu">&#9776;</button>` : '') + `</div>`;
+  }
+
+  function setupHTML() {
+    const st = U.settings;
+    const seg = (items, cur, prefix) => `<div class="seg">${items.map(([v, l]) =>
+      `<button data-set="${prefix}:${v}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+    const fan = [['red', 6], ['blue', 3], ['purple', 9], ['yellow', 5], ['green', 8]].map(([c, n]) => staticCard(SW.CARD_BY_ID[c + n], '')).join('');
+    let opp = '';
+    for (let i = 0; i < st.players - 1; i++) {
+      opp += `<div class="opp-row"><div class="av">${ART.avatarSVG(i + 1)}</div><div class="nm">${BOT_NAMES[i]}</div>` +
+        `<div class="seg">${AI.LEVELS.map(l => `<button data-set="level:${i}:${l}" aria-pressed="${st.levels[i] === l}">${LEVEL_LABEL[l]}</button>`).join('')}</div></div>`;
+    }
+    return topbar() + `<div class="setup">` +
+      `<div class="hero"><h1><span>Something</span><em>Wild!</em></h1><div class="fan">${fan}</div>` +
+      `<p>Beat the computer to three Powers.<br>Works offline.</p></div>` +
+      `<div class="panel"><h3>Players</h3>${seg([[2, '2'], [3, '3'], [4, '4']], st.players, 'players')}</div>` +
+      `<div class="panel"><h3>Opponents</h3>${opp}</div>` +
+      `<div class="panel"><h3>Who goes first?</h3>${seg([['random', 'Random'], ['you', 'Me']], st.first, 'first')}` +
+      `<h3 style="margin-top:14px">Computer speed</h3>${seg([['normal', 'Normal'], ['fast', 'Fast']], st.speed, 'speed')}</div>` +
+      `<button class="bigbtn" data-act="start">Play!</button>` +
+      `<div class="fine"><button class="linkbtn" data-act="rules">How to play</button></div></div>`;
+  }
+
+  function render() {
+    const root = $('#app');
+    const y = window.scrollY;
+    if (U.screen === 'setup') {
+      root.innerHTML = setupHTML();
+    } else {
+      const s = U.state;
+      root.innerHTML = topbar() + `<div class="game">` +
+        `<div class="opps" style="--n:${s.players.length - 1}">${s.players.slice(1).map(oppHTML).join('')}</div>` +
+        centerHTML() + meHTML() + promptHTML() + `</div>`;
+    }
+    U.fresh.clear();
+    window.scrollTo(0, y);
+  }
+
+  /* ---------- sheets ---------- */
+  function openSheet(html, o) {
+    o = o || {};
+    return new Promise(res => {
+      const peek = o.peek ? '<button class="peekbtn" data-peek>\uD83D\uDC40 Peek at table</button>' : '';
+      $('#overlay').innerHTML = `<div class="scrim ${o.modal ? 'center-modal' : ''}" data-scrim><div class="sheet" role="dialog" aria-modal="true">${peek}${html}</div></div>`;
+      U.sheetRes = res; U.sheetDismiss = !!o.dismiss;
+    });
+  }
+  function closeSheet(v) {
+    $('#overlay').innerHTML = '';
+    const r = U.sheetRes; U.sheetRes = null; U.sheetDismiss = false;
+    if (r) r(v);
+  }
+
+  function rulesHTML() {
+    return `<div class="rules"><h2>How to play</h2>` +
+      `<p><b>Goal:</b> be the first to score <b>three Powers</b>.</p>` +
+      `<p>You score a Power by getting <b>three cards in front of you</b> that make a <b>set</b> (same number, any colors) or a <b>run</b> (same color, numbers in order, like Blue 4-5-6). Scoring is automatic.</p>` +
+      `<h4>Your turn</h4><ol>` +
+      `<li><b>Draw</b> a card.</li><li><b>Play</b> one card from your hand face up in front of you.</li>` +
+      `<li><b>Take the Mover</b> if the card you played is the same color as the Power in the center, or is a <b>1</b> (it has the Mover symbol). You keep it until someone else takes it.</li>` +
+      `<li><b>Use a Power</b> &mdash; only if you have the Mover. Pick one you have scored, or the one in the center. It lasts until the end of your turn.</li>` +
+      `<li><b>Score</b> if you have a set or run. Discard those three cards and take the Power from the center.</li>` +
+      `<li><b>Discard</b> down to five cards in front of you.</li></ol>` +
+      `<p>You don't need the Mover to score &mdash; only to use Powers. If the deck runs out, the discard pile is shuffled.</p>` +
+      `<h4>The ten Powers</h4><div class="pgrid">${POWERS.map(p => powerHTML(p)).join('')}</div>` +
+      `<button class="skipbtn" data-res="close">Got it</button></div>`;
+  }
+
+  /* ---------- inline questions ---------- */
+  function ask(cfg) {
+    return new Promise(res => {
+      U.ask = Object.assign({ chosen: null }, cfg, { res });
+      U.status = '';
+      render();
+    });
+  }
+  function resolveAsk(result) {
+    const a = U.ask; if (!a) return;
+    U.ask = null; U.hint = null;
+    render();
+    a.res(result);
+  }
+
+  /* ---------- the human player ---------- */
+  const human = {
+    async choosePlay(state, i) {
+      const hand = state.players[i].hand;
+      for (;;) {
+        const r = await ask({
+          text: 'Your turn: play a card', sub: 'Drag a card to your play area, or tap it and press Play.',
+          ids: hand.map(c => c.id), chosen: U.hintChosen || null, dragPlay: true,
+          buttons: [{ id: 'hint', label: '💡 Hint' }, { id: 'ok', label: 'Play', primary: true, needsChoice: true }],
+        });
+        if (r.button === 'ok' && r.id) { U.hintChosen = null; return r.id; }
+      }
+    },
+    async choosePower(state, i, opts) {
+      const html = `<h2>Use a Power?</h2><p class="sub">You have the Mover. Use one Power this turn, or skip.</p><div class="plist">` +
+        opts.map(o => `<button class="popt" data-res="use:${o.power.id}" ${o.feasible ? '' : 'disabled'}>${powerHTML(o.power)}` +
+          `<div class="info"><b>${o.power.name}</b>${o.power.text}` +
+          (o.source === 'center' ? '<br><i>In the center &mdash; you take it if you score.</i>' : '') +
+          (o.scores ? '<br><span class="star">&#9733; Lets you score right now!</span>' : '') +
+          (!o.feasible ? `<br><span class="why">${o.reason}</span>` : '') + `</div></button>`).join('') +
+        `</div><button class="skipbtn" data-res="skip">No Power this turn</button>`;
+      const r = await openSheet(html, { peek: true });
+      return r && r.indexOf('use:') === 0 ? { id: r.slice(4) } : null;
+    },
+    async chooseColor() {
+      const r = await openSheet(`<h2>Guess a color</h2><p class="sub">The top card of the deck is revealed. If it matches, you play it.</p>` +
+        `<div class="colorgrid">${COLORS.map(c => `<button class="c-${c}" data-res="${c}">${COLOR_LABEL[c]}</button>`).join('')}</div>`, { peek: true });
+      return r;
+    },
+    async chooseNumber() {
+      const r = await openSheet(`<h2>Guess a number</h2><p class="sub">The top card of the deck is revealed. If it matches, you play it.</p>` +
+        `<div class="numgrid">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-res="${n}">${n}</button>`).join('')}</div>`, { peek: true });
+      return parseInt(r, 10);
+    },
+    async chooseSwap(state, i, pairs) {
+      const mineIds = pairs.map(p => p.mine).filter((x, k, a) => a.indexOf(x) === k);
+      const r1 = await ask({ text: 'Swap: pick YOUR card to give away', sub: 'Highlighted cards have a same-color card on the table.', ids: mineIds, auto: true, buttons: [] });
+      const options = pairs.filter(p => p.mine === r1.id);
+      const r2 = await ask({ text: 'Now pick the card you want', sub: 'It must be the same color as the one you give.', ids: options.map(p => p.theirs), auto: true, buttons: [{ id: 'back', label: 'Back' }] });
+      if (r2.button === 'back') return human.chooseSwap(state, i, pairs);
+      return options.find(p => p.theirs === r2.id) || options[0];
+    },
+    async choosePassCard(state, i) {
+      const n = state.players.length;
+      const prev = state.players[(i - 1 + n) % n];
+      const r = await ask({ text: `Pass It On: pick a card to give ${prev.name}`, sub: 'Everyone passes one card to the previous player.', ids: state.players[i].hand.map(c => c.id), buttons: [{ id: 'ok', label: 'Pass', primary: true, needsChoice: true }] });
+      return r.id;
+    },
+    async chooseDiscardPick(state, i, pile) {
+      const r = await openSheet(`<h2>Play from the discard pile</h2><p class="sub">Pick any card to play in front of you.</p><div class="cardrow">` +
+        pile.map(c => `<button style="border:0;background:none;padding:0" data-res="${c.id}">${staticCard(c, '')}</button>`).join('') + `</div>`, { peek: true });
+      return r;
+    },
+    async chooseTriple(state, i, triples) {
+      const r = await openSheet(`<h2>Which cards do you score with?</h2><p class="sub">You have more than one way to score.</p>` +
+        triples.map((t, k) => `<button class="tripleopt" data-res="${k}">${t.map(c => staticCard(c, '')).join('')}<span class="lbl">${SW.tripleKind(t, state.turn.power) === 'run' ? 'Run' : SW.tripleKind(t, state.turn.power) === 'set' ? 'Set' : 'Power'}</span></button>`).join(''), { peek: true });
+      return parseInt(r, 10);
+    },
+    async chooseDiscards(state, i, n) {
+      const chosen = [];
+      for (let k = 0; k < n; k++) {
+        const left = state.players[i].tableau.filter(c => chosen.indexOf(c.id) < 0);
+        const r = await ask({ text: `Over five cards: discard ${n - k} more`, sub: 'Tap the card to discard, then press Discard.', ids: left.map(c => c.id), buttons: [{ id: 'ok', label: 'Discard', primary: true, needsChoice: true }] });
+        chosen.push(r.id);
+      }
+      return chosen;
+    },
+  };
+
+  /* ---------- game flow ---------- */
+  function pushLog(m) { U.log.push(m); if (U.log.length > 40) U.log.shift(); }
+  function showBanner(text, sub) {
+    const b = $('#banner');
+    b.innerHTML = `<div class="banner"><div class="b">${text}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
+    clearTimeout(showBanner.t);
+    showBanner.t = setTimeout(() => { b.innerHTML = ''; }, 2000 * Math.max(.5, scale()));
+  }
+
+  function makeHooks(token) {
+    return {
+      event: async (type, d) => {
+        if (U.token !== token) throw ABORT;
+        const s = U.state, P = i => s.players[i], who = i => (i === 0 ? 'You' : P(i).name);
+        const verb = (i, a, b) => (i === 0 ? a : b);
+        let ms = 0;
+        switch (type) {
+          case 'turn-start':
+            U.status = d.player === 0 ? '' : `${P(d.player).name} is playing`;
+            ms = d.player === 0 ? 0 : 400;
+            break;
+          case 'draw':
+            if (d.player === 0 && d.card) { U.fresh.add(d.card.id); pushLog(`You drew ${cardName(d.card)}`); }
+            break;
+          case 'play':
+            U.fresh.add(d.card.id);
+            pushLog(`${who(d.player)} ${verb(d.player, 'play', 'plays')} ${cardName(d.card)}`);
+            ms = d.player === 0 ? 350 : 850;
+            break;
+          case 'mover':
+            pushLog(`${who(d.player)} ${verb(d.player, 'grab', 'grabs')} the Mover!`);
+            ms = 700;
+            break;
+          case 'no-mover':
+            if (d.player === 0) { pushLog('No Mover, so no Power this turn'); ms = 450; }
+            break;
+          case 'power-use':
+            pushLog(`${who(d.player)} ${verb(d.player, 'use', 'uses')} ${d.power.name}`);
+            ms = 900;
+            break;
+          case 'guess': {
+            const g = d.type === 'color' ? COLOR_LABEL[d.guess] : d.guess;
+            pushLog(`${who(d.player)} ${verb(d.player, 'guess', 'guesses')} ${g}. Flipped ${cardName(d.card)}: ${d.match ? 'a match, played!' : 'no match'}`);
+            if (d.match) U.fresh.add(d.card.id);
+            ms = 1400;
+            break;
+          }
+          case 'swap':
+            U.fresh.add(d.mine.id); U.fresh.add(d.theirs.id);
+            pushLog(`${who(d.player)} ${verb(d.player, 'swap', 'swaps')} ${cardName(d.mine)} for ${who(d.other)}${d.other === 0 ? 'r' : '’s'} ${cardName(d.theirs)}`);
+            ms = 1200;
+            break;
+          case 'pass': {
+            const got = d.moves.find(m => m.to === 0);
+            pushLog('Everyone passed a card to the previous player' + (got ? `. You got ${cardName(got.card)}` : ''));
+            if (got) U.fresh.add(got.card.id);
+            ms = 1300;
+            break;
+          }
+          case 'discard-pick':
+            U.fresh.add(d.card.id);
+            pushLog(`${who(d.player)} ${verb(d.player, 'play', 'plays')} ${cardName(d.card)} from the discard pile`);
+            ms = 900;
+            break;
+          case 'score': {
+            const k = d.kind === 'run' ? 'RUN!' : d.kind === 'set' ? 'SET!' : 'POWER!';
+            pushLog(`${who(d.player)} scored ${d.kind === 'power' ? 'with a Power' : 'a ' + d.kind}: ${d.cards.map(cardName).join(', ')}`);
+            showBanner(d.player === 0 ? k : `${P(d.player).name}: ${k}`, `${who(d.player)} ${verb(d.player, 'get', 'gets')} ${d.power.name}`);
+            if (d.player === 0 && navigator.vibrate) { try { navigator.vibrate(40); } catch (e) { /* ignore */ } }
+            ms = 1900;
+            break;
+          }
+          case 'discard':
+            pushLog(`${who(d.player)} ${verb(d.player, 'discard', 'discards')} ${d.cards.map(cardName).join(', ')}`);
+            ms = d.player === 0 ? 300 : 700;
+            break;
+          case 'reshuffle':
+            pushLog('The deck ran out: discard pile shuffled into a new deck');
+            ms = 900;
+            break;
+          case 'win':
+            showBanner(d.player === 0 ? 'YOU WIN!' : `${P(d.player).name} WINS!`, 'Three Powers scored');
+            break;
+          default: break;
+        }
+        render();
+        if (ms) await sleep(ms * scale());
+        if (U.token !== token) throw ABORT;
+      },
+    };
+  }
+
+  async function startGame() {
+    const token = ++U.token;
+    closeSheet();
+    const st = U.settings;
+    const players = [{ name: 'You', human: true }];
+    for (let i = 0; i < st.players - 1; i++) players.push({ name: BOT_NAMES[i], level: st.levels[i] });
+    U.state = SW.newGame({ players, first: st.first === 'you' ? 0 : 'random' });
+    U.agents = players.map(p => (p.human ? human : AI.createAgent(p.level, Math.random)));
+    U.screen = 'game'; U.ask = null; U.hint = null; U.hintChosen = null; U.log = []; U.fresh = new Set();
+    const first = U.state.players[U.state.current];
+    pushLog(`${first.human ? 'You go' : first.name + ' goes'} first. Tip: tap or hold any Power to see what it does.`);
+    U.status = '';
+    render();
+    const hooks = makeHooks(token);
+    try {
+      await sleep(600 * scale());
+      while (U.state.winner == null && U.token === token) {
+        await SW.runTurn(U.state, U.agents, hooks);
+        render();
+      }
+      if (U.token === token) await gameOver(token);
+    } catch (e) {
+      if (e !== ABORT) { console.error(e); U.status = 'Something went wrong. Open the menu to start a new game.'; render(); }
+    }
+  }
+
+  async function gameOver(token) {
+    const s = U.state, w = s.players[s.winner];
+    U.status = ''; render();
+    await sleep(900);
+    if (U.token !== token) return;
+    const you = w.human;
+    const r = await openSheet(`<div class="win"><div class="trophy">${you ? '🏆' : '🤖'}</div>` +
+      `<h2>${you ? 'You win!' : w.name + ' wins!'}</h2>` +
+      `<p class="sub">${you ? 'Three Powers scored. Nicely done!' : 'They scored three Powers first. Rematch?'}</p>` +
+      `<div class="row"><button class="skipbtn" data-res="menu">Menu</button><button class="pbtn primary" data-res="again" style="flex:1">Play again</button></div>` +
+      `<button class="linkbtn" data-res="close" style="margin-top:8px">Look at the table</button></div>`, { modal: true, dismiss: true });
+    if (r === 'again') startGame();
+    else if (r === 'menu') toSetup();
+  }
+
+  function toSetup() {
+    U.token++; closeSheet(); U.ask = null; U.screen = 'setup'; U.state = null; U.status = '';
+    render();
+  }
+
+  /* ---------- events ---------- */
+  function handleAct(act) {
+    if (act === 'start' || act === 'again') return startGame();
+    if (act === 'menu-setup') return toSetup();
+    if (act === 'rules') return void openSheet(rulesHTML(), { dismiss: true });
+    if (act === 'menu') {
+      return void openSheet(`<h2>Menu</h2><div class="plist" style="margin-top:10px">` +
+        `<button class="skipbtn" style="margin:0" data-res="close">Back to game</button>` +
+        `<button class="skipbtn" style="margin:0" data-res="rules">How to play</button>` +
+        `<button class="skipbtn" style="margin:0" data-res="restart">Restart this game</button>` +
+        `<button class="skipbtn" style="margin:0" data-res="quit">Quit to setup</button></div>`, { dismiss: true })
+        .then(r => { if (r === 'rules') handleAct('rules'); else if (r === 'restart') startGame(); else if (r === 'quit') toSetup(); });
+    }
+    if (act === 'discard') {
+      const s = U.state; if (!s) return;
+      return void openSheet(`<h2>Discard pile (${s.discard.length})</h2><p class="sub">Most recent last.</p><div class="cardrow">` +
+        (s.discard.length ? s.discard.map(c => staticCard(c, '')).join('') : '<p class="sub">Empty</p>') + `</div><button class="skipbtn" data-res="close">Close</button>`, { dismiss: true });
+    }
+    if (act.indexOf('power:') === 0) {
+      const p = SW.POWER_BY_ID[act.slice(6)];
+      return void openSheet(`<div style="display:flex;justify-content:center">${powerHTML(p, { size: 'big' })}</div><p class="sub" style="text-align:center;margin-top:10px">${p.text}</p><button class="skipbtn" data-res="close">Close</button>`, { dismiss: true, modal: true });
+    }
+  }
+
+  function onAppClick(e) {
+    if (dragJustEnded) return;
+    // A decision sheet is waiting (the player is peeking at the table): don't open other sheets over it.
+    // Powers can still be explained with the little tooltip.
+    if (U.sheetRes) {
+      const pel = e.target.closest(POWER_SEL);
+      if (pel) { showTip(powerIdOf(pel), pel.getBoundingClientRect()); hideTip(2500); }
+      return;
+    }
+    const set = e.target.closest('[data-set]');
+    if (set) {
+      const [k, a, b] = set.dataset.set.split(':');
+      const st = U.settings;
+      if (k === 'players') st.players = +a;
+      else if (k === 'level') st.levels[+a] = b;
+      else if (k === 'first') st.first = a;
+      else if (k === 'speed') st.speed = a;
+      saveSettings(); render(); return;
+    }
+    const btn = e.target.closest('[data-btn]');
+    if (btn && U.ask) {
+      if (btn.disabled) return;
+      if (btn.dataset.btn === 'hint') {
+        const sug = AI.suggest(U.state, 0);
+        if (sug) {
+          U.hint = sug.cardId; U.ask.chosen = sug.cardId;
+          U.ask.sub = `Hint: ${cardName(SW.CARD_BY_ID[sug.cardId])} ${sug.why}.`;
+          render();
+        }
+        return;
+      }
+      resolveAsk({ button: btn.dataset.btn, id: U.ask.chosen });
+      return;
+    }
+    if (lpFired) { lpFired = false; return; }
+    const act = e.target.closest('[data-act]');
+    if (act) { handleAct(act.dataset.act); return; }
+    const pw = e.target.closest('[data-power]');
+    if (pw) { handleAct('power:' + pw.dataset.power); return; }
+    const card = e.target.closest('[data-card]');
+    if (card && U.ask && U.ask.ids && U.ask.ids.indexOf(card.dataset.card) >= 0) {
+      if (U.ask.auto) { resolveAsk({ id: card.dataset.card }); return; }
+      U.ask.chosen = card.dataset.card; U.hint = null; render();
+    }
+  }
+
+  /* ---------- Power explanations: long-press (touch) or hover (mouse) ---------- */
+  const POWER_SEL = '[data-power],[data-act^="power:"]';
+  let lpTimer = null, lpFired = false, lpStart = null, tipTimer = null;
+  const powerIdOf = el => el.dataset.power || (el.dataset.act || '').slice(6);
+  function showTip(id, rect) {
+    const p = SW.POWER_BY_ID[id]; if (!p) return;
+    let tip = $('#tip');
+    if (!tip) { tip = document.createElement('div'); tip.id = 'tip'; document.body.appendChild(tip); }
+    tip.innerHTML = `<b>${p.name}</b>${p.text}`;
+    tip.style.display = 'block';
+    const w = Math.min(240, window.innerWidth - 16);
+    tip.style.width = w + 'px';
+    const left = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left + rect.width / 2 - w / 2));
+    tip.style.left = left + 'px';
+    const h = tip.offsetHeight;
+    tip.style.top = (rect.top - h - 10 < 8 ? rect.bottom + 10 : rect.top - h - 10) + 'px';
+    clearTimeout(tipTimer);
+  }
+  function hideTip(delay) {
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(() => { const t = $('#tip'); if (t) t.style.display = 'none'; }, delay || 0);
+  }
+  function wirePowerHelp(app) {
+    app.addEventListener('pointerdown', e => {
+      const t = e.target.closest(POWER_SEL);
+      clearTimeout(lpTimer);
+      if (!t || e.pointerType === 'mouse') return;
+      const id = powerIdOf(t), rect = t.getBoundingClientRect();
+      lpStart = { x: e.clientX, y: e.clientY };
+      lpFired = false;
+      lpTimer = setTimeout(() => { lpFired = true; showTip(id, rect); if (navigator.vibrate) { try { navigator.vibrate(15); } catch (x) { /* ignore */ } } }, 420);
+    });
+    app.addEventListener('pointermove', e => {
+      if (lpStart && Math.hypot(e.clientX - lpStart.x, e.clientY - lpStart.y) > 10) { clearTimeout(lpTimer); lpStart = null; }
+    });
+    ['pointerup', 'pointercancel'].forEach(ev => app.addEventListener(ev, () => {
+      clearTimeout(lpTimer); lpStart = null;
+      if (lpFired) hideTip(1600);
+      setTimeout(() => { lpFired = false; }, 350);
+    }));
+    app.addEventListener('pointerover', e => {
+      if (e.pointerType !== 'mouse') return;
+      const t = e.target.closest(POWER_SEL);
+      if (t) showTip(powerIdOf(t), t.getBoundingClientRect());
+    });
+    app.addEventListener('pointerout', e => {
+      if (e.pointerType === 'mouse' && e.target.closest(POWER_SEL)) hideTip(0);
+    });
+    app.addEventListener('contextmenu', e => { if (e.target.closest(POWER_SEL)) e.preventDefault(); });
+  }
+
+  /* ---------- drag a card from your hand into your play area ---------- */
+  let drag = null, dragJustEnded = false;
+  const dropBox = () => {
+    const me = $('.me'); if (!me) return null;
+    const r = me.getBoundingClientRect();
+    return { l: r.left - 10, r: r.right + 10, t: r.top - 10, b: r.bottom + 10 };
+  };
+  const overDrop = (x, y) => { const b = dropBox(); return !!b && x >= b.l && x <= b.r && y >= b.t && y <= b.b; };
+  function wireDrag(app) {
+    app.addEventListener('pointerdown', e => {
+      const a = U.ask;
+      if (!a || !a.dragPlay || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      const card = e.target.closest('.hand .card[data-card]');
+      if (!card || a.ids.indexOf(card.dataset.card) < 0) return;
+      const r = card.getBoundingClientRect();
+      drag = { id: card.dataset.card, el: card, sx: e.clientX, sy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, rect: r, ghost: null, started: false };
+    });
+    window.addEventListener('pointermove', e => {
+      if (!drag) return;
+      if (!drag.started) {
+        if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 8) return;
+        drag.started = true;
+        const g = drag.el.cloneNode(true);
+        ['selectable', 'picked', 'hinted', 'fresh', 'draggable'].forEach(c => g.classList.remove(c));
+        g.classList.add('ghost');
+        g.style.width = drag.rect.width + 'px';
+        g.style.setProperty('--cw', drag.rect.width + 'px');
+        document.body.appendChild(g);
+        drag.ghost = g;
+        drag.el.classList.add('dragging');
+        const me = $('.me'); if (me) me.classList.add('drop-ready');
+      }
+      drag.ghost.style.left = (e.clientX - drag.ox) + 'px';
+      drag.ghost.style.top = (e.clientY - drag.oy) + 'px';
+      const me = $('.me'); if (me) me.classList.toggle('drop-over', overDrop(e.clientX, e.clientY));
+    }, { passive: true });
+    const end = e => {
+      if (!drag) return;
+      const d = drag; drag = null;
+      const me = $('.me'); if (me) me.classList.remove('drop-ready', 'drop-over');
+      if (!d.started) return; // a plain tap: the click handler selects the card
+      dragJustEnded = true; setTimeout(() => { dragJustEnded = false; }, 350);
+      const ok = e.type === 'pointerup' && overDrop(e.clientX, e.clientY) && U.ask && U.ask.dragPlay && U.ask.ids.indexOf(d.id) >= 0;
+      if (ok) { d.ghost.remove(); resolveAsk({ button: 'ok', id: d.id }); return; }
+      const g = d.ghost; // not dropped on the play area: slide back to the hand
+      g.classList.add('returning');
+      g.style.left = d.rect.left + 'px'; g.style.top = d.rect.top + 'px'; g.style.transform = 'none';
+      setTimeout(() => { g.remove(); d.el.classList.remove('dragging'); }, 190);
+    };
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+  }
+
+  function setPeek(on) {
+    const scrim = $('#overlay .scrim'); if (!scrim) return;
+    scrim.classList.toggle('peeking', on);
+    let bar = $('#overlay .peekbar');
+    if (on && !bar) {
+      bar = document.createElement('div'); bar.className = 'peekbar';
+      bar.innerHTML = '<span>Looking at the table</span><button class="pbtn primary" data-unpeek>Back to decision</button>';
+      $('#overlay').appendChild(bar);
+    } else if (!on && bar) bar.remove();
+  }
+
+  function onOverlayClick(e) {
+    if (e.target.closest('[data-peek]')) { setPeek(true); return; }
+    if (e.target.closest('[data-unpeek]')) { setPeek(false); return; }
+    const t = e.target.closest('[data-res]');
+    if (t && !t.disabled) { closeSheet(t.dataset.res); return; }
+    if (e.target.matches('[data-scrim]') && U.sheetDismiss) closeSheet('close');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    $('#app').addEventListener('click', onAppClick);
+    wirePowerHelp($('#app'));
+    wireDrag($('#app'));
+    $('#overlay').addEventListener('click', onOverlayClick);
+    render();
+  });
+
+  window.SWUI = { U, render, startGame, human }; // exposed for testing
+})();
+
+</script>
+<script>if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }</script>
+</body>
+</html>
