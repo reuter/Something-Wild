@@ -7,6 +7,7 @@ html = os.path.abspath(sys.argv[1])
 shots = sys.argv[2]
 games = int(sys.argv[3]) if len(sys.argv) > 3 else 2
 nplayers = int(sys.argv[4]) if len(sys.argv) > 4 else 4
+edition = sys.argv[5] if len(sys.argv) > 5 else 'spiderman'
 os.makedirs(shots, exist_ok=True)
 errors = []
 sheet_kinds = {}
@@ -40,7 +41,7 @@ def step(page, rnd):
 with sync_playwright() as p:
     browser = p.chromium.launch()
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, is_mobile=True, has_touch=True)
-    ctx.add_init_script("""localStorage.setItem('sw-settings', JSON.stringify({players:%d, levels:['easy','hard','unpredictable'], speed:'fast', first:'random'}));""" % nplayers)
+    ctx.add_init_script("""localStorage.setItem('sw-settings', JSON.stringify({players:%d, levels:['easy','hard','unpredictable'], speed:'fast', first:'random', edition:'%s'}));""" % (nplayers, edition))
     page = ctx.new_page()
     page.on('console', lambda m: errors.append('console.' + m.type + ': ' + m.text) if m.type in ('error', 'warning') else None)
     page.on('pageerror', lambda e: errors.append('pageerror: ' + str(e)))

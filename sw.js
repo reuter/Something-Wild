@@ -1,5 +1,5 @@
 // Offline cache for Something Wild Solo
-const CACHE = 'wild-solo-mv5nsn4n';
+const CACHE = 'wild-solo-mv5zpv7p';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

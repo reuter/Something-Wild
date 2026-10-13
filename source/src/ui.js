@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const SW = window.SW, AI = window.SWAI, ART = window.SWART;
-  const { COLORS, COLOR_LABEL, POWERS, cardName } = SW;
+  const { COLORS, COLOR_LABEL, cardName } = SW;
   const LEVEL_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard', unpredictable: 'Unpredictable' };
   const LEVEL_SHORT = { easy: 'Easy', medium: 'Med', hard: 'Hard', unpredictable: '???' };
   const BOT_NAMES = ['Pixel', 'Gadget', 'Rascal'];
@@ -10,11 +10,15 @@
   const $ = (s, el) => (el || document).querySelector(s);
 
   /* ---------- settings ---------- */
-  const DEFAULTS = { players: 3, levels: ['medium', 'hard', 'medium'], speed: 'normal', first: 'random' };
+  const DEFAULTS = { players: 3, levels: ['medium', 'hard', 'medium'], speed: 'normal', first: 'random', edition: 'spiderman' };
   function loadSettings() {
     try {
       const s = JSON.parse(localStorage.getItem('sw-settings') || 'null');
-      if (s && s.players >= 2 && s.players <= 4 && Array.isArray(s.levels)) return Object.assign({}, DEFAULTS, s);
+      if (s && s.players >= 2 && s.players <= 4 && Array.isArray(s.levels)) {
+        const out = Object.assign({}, DEFAULTS, s);
+        if (!SW.EDITIONS[out.edition]) out.edition = DEFAULTS.edition;
+        return out;
+      }
     } catch (e) { /* storage unavailable */ }
     return JSON.parse(JSON.stringify(DEFAULTS));
   }
@@ -26,6 +30,10 @@
   };
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const scale = () => (U.settings.speed === 'fast' ? 0.35 : 1);
+  const edId = () => (U.state && U.state.edition) || U.settings.edition || 'spiderman';
+  const ED = () => SW.EDITIONS[edId()];
+  const MW = () => ED().moverWord; // "Mover" or "Figure"
+  const lc = t => t.toLowerCase();
 
   /* ---------- HTML builders ---------- */
   function cardHTML(c, o) {
@@ -40,7 +48,7 @@
     if (o.hand && a && a.dragPlay && a.ids.indexOf(c.id) >= 0) cls.push('draggable');
     return `<div class="${cls.join(' ')}" data-card="${c.id}" role="img" aria-label="${cardName(c)}">` +
       `<div class="num">${c.num}</div>` +
-      (c.num === 1 ? `<div class="msym" title="Take a Mover">${ART.moverSymbolSVG()}</div>` : '') +
+      (c.num === 1 ? `<div class="msym" title="Take a ${MW()}">${ART.moverSymbolSVG()}</div>` : '') +
       `<div class="art">${ART.figureSVG(c.color, c.num)}</div><div class="nm" data-n="${c.num}">${ART.charName(c)}</div></div>`;
   }
   const staticCard = (c, size) => { const f = U.fresh; U.fresh = new Set(); const a = U.ask; U.ask = null; const h = U.hint; U.hint = null; const r = cardHTML(c, { size }); U.fresh = f; U.ask = a; U.hint = h; return r; };
@@ -53,7 +61,7 @@
   const chipHTML = p => `<button class="pchip c-${p.color}" data-act="power:${p.id}" aria-label="${p.name}">${ART.powerIcon(p.id)}</button>`;
   const pipsHTML = p => `<div class="pips" aria-label="${p.powers.length} of 3 Powers">` +
     [0, 1, 2].map(i => `<span class="pip ${i < p.powers.length ? 'on' : ''}"></span>`).join('') + '</div>';
-  const moverChip = () => `<div class="moverchip" title="Has the Mover">${ART.moverSVG()}</div>`;
+  const moverChip = () => `<div class="moverchip" title="Has the ${MW()}">${ART.moverSVG(edId())}</div>`;
 
   function oppHTML(p) {
     const s = U.state;
@@ -75,8 +83,8 @@
       `<div class="pile">${backHTML('')}<span class="count">Deck ${s.deck.length}</span></div>` +
       `<button class="pile discard" data-act="discard" aria-label="Look through the discard pile">${top}<span class="count">Discard ${s.discard.length}</span></button>` +
       `<div class="centerpower">${s.center ? powerHTML(s.center, { size: 'big' }) : ''}` +
-      (s.center ? `<span class="hint c-${s.center.color}"><i class="dot"></i>Play ${COLOR_LABEL[s.center.color]} or a 1 to grab the Mover</span>` : '') + `</div>` +
-      `<div class="moverbox ${s.mover != null ? 'held' : ''}"><div class="tok">${ART.moverSVG()}</div>${holder}</div>` +
+      (s.center ? `<span class="hint c-${s.center.color}"><i class="dot"></i>Play ${COLOR_LABEL[s.center.color]} or a 1 to grab the ${MW()}</span>` : '') + `</div>` +
+      `<div class="moverbox ${s.mover != null ? 'held' : ''}"><div class="tok">${ART.moverSVG(edId())}</div>${holder}</div>` +
       `</div>` +
       `<div class="ticker">${U.log.slice(-2).map(m => `<div>${m}</div>`).join('')}</div></div>`;
   }
@@ -106,7 +114,7 @@
   }
 
   function topbar() {
-    return `<div class="topbar"><div class="logo">Something <b>Wild!</b></div>` +
+    return `<div class="topbar"><div class="logo">Something <b>Wild!</b>${U.screen === 'game' ? `<span class="edname">${ED().name}</span>` : ''}</div>` +
       `<button class="iconbtn" data-act="rules">Rules</button>` +
       (U.screen === 'game' ? `<button class="iconbtn" data-act="menu" aria-label="Menu">&#9776;</button>` : '') + `</div>`;
   }
@@ -124,6 +132,9 @@
     return topbar() + `<div class="setup">` +
       `<div class="hero"><h1><span>Something</span><em>Wild!</em></h1><div class="fan">${fan}</div>` +
       `<p>Beat the computer to three Powers.<br>Works offline.</p></div>` +
+      `<div class="panel"><h3>Edition</h3><div class="eds">${SW.EDITION_LIST.map(e =>
+        `<button class="ed" data-ed="${e.id}" data-set="edition:${e.id}" aria-pressed="${st.edition === e.id}"><div class="tok">${ART.moverSVG(e.id)}</div><b>${e.name}</b></button>`).join('')}</div>` +
+      `<p class="edblurb">${ED().blurb} <button class="linkbtn" data-act="rules">See its 10 Powers</button></p></div>` +
       `<div class="panel"><h3>Players</h3>${seg([[2, '2'], [3, '3'], [4, '4']], st.players, 'players')}</div>` +
       `<div class="panel"><h3>Opponents</h3>${opp}</div>` +
       `<div class="panel"><h3>Who goes first?</h3>${seg([['random', 'Random'], ['you', 'Me']], st.first, 'first')}` +
@@ -132,8 +143,11 @@
       `<div class="fine"><button class="linkbtn" data-act="rules">How to play</button></div></div>`;
   }
 
+  const THEME = { spiderman: '#2c5f9e', groot: '#1f6b4f', boba: '#1d1f26' };
   function render() {
     const root = $('#app');
+    document.documentElement.setAttribute('data-ed', edId());
+    const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.setAttribute('content', THEME[edId()] || THEME.spiderman);
     const y = window.scrollY;
     if (U.screen === 'setup') {
       root.innerHTML = setupHTML();
@@ -168,12 +182,12 @@
       `<p>You score a Power by getting <b>three cards in front of you</b> that make a <b>set</b> (same number, any colors) or a <b>run</b> (same color, numbers in order, like Blue 4-5-6). Scoring is automatic.</p>` +
       `<h4>Your turn</h4><ol>` +
       `<li><b>Draw</b> a card.</li><li><b>Play</b> one card from your hand face up in front of you.</li>` +
-      `<li><b>Take the Mover</b> if the card you played is the same color as the Power in the center, or is a <b>1</b> (it has the Mover symbol). You keep it until someone else takes it.</li>` +
-      `<li><b>Use a Power</b> &mdash; only if you have the Mover. Pick one you have scored, or the one in the center. It lasts until the end of your turn.</li>` +
+      `<li><b>Take the ${MW()}</b> if the card you played is the same color as the Power in the center, or is a <b>1</b> (it has the ${MW()} symbol). You keep it until someone else takes it.</li>` +
+      `<li><b>Use a Power</b> &mdash; only if you have the ${MW()}. Pick one you have scored, or the one in the center. It lasts until the end of your turn.</li>` +
       `<li><b>Score</b> if you have a set or run. Discard those three cards and take the Power from the center.</li>` +
       `<li><b>Discard</b> down to five cards in front of you.</li></ol>` +
-      `<p>You don't need the Mover to score &mdash; only to use Powers. If the deck runs out, the discard pile is shuffled.</p>` +
-      `<h4>The ten Powers</h4><div class="pgrid">${POWERS.map(p => powerHTML(p)).join('')}</div>` +
+      `<p>You don't need the ${MW()} to score &mdash; only to use Powers. If the deck runs out, the discard pile is shuffled.</p>` +
+      `<h4>The ten ${ED().name} Powers</h4><div class="pgrid">${ED().powers.map(p => powerHTML(p)).join('')}</div>` +
       `<button class="skipbtn" data-res="close">Got it</button></div>`;
   }
 
@@ -206,7 +220,7 @@
       }
     },
     async choosePower(state, i, opts) {
-      const html = `<h2>Use a Power?</h2><p class="sub">You have the Mover. Use one Power this turn, or skip.</p><div class="plist">` +
+      const html = `<h2>Use a Power?</h2><p class="sub">You have the ${MW()}. Use one Power this turn, or skip.</p><div class="plist">` +
         opts.map(o => `<button class="popt" data-res="use:${o.power.id}" ${o.feasible ? '' : 'disabled'}>${powerHTML(o.power)}` +
           `<div class="info"><b>${o.power.name}</b>${o.power.text}` +
           (o.source === 'center' ? '<br><i>In the center &mdash; you take it if you score.</i>' : '') +
@@ -234,10 +248,25 @@
       if (r2.button === 'back') return human.chooseSwap(state, i, pairs);
       return options.find(p => p.theirs === r2.id) || options[0];
     },
-    async choosePassCard(state, i) {
+    async choosePassCard(state, i, allowed) {
       const n = state.players.length;
       const prev = state.players[(i - 1 + n) % n];
-      const r = await ask({ text: `Pass It On: pick a card to give ${prev.name}`, sub: 'Everyone passes one card to the previous player.', ids: state.players[i].hand.map(c => c.id), buttons: [{ id: 'ok', label: 'Pass', primary: true, needsChoice: true }] });
+      const pw = state.turn && state.turn.power, pick = pw && pw.pick;
+      const ids = (allowed || state.players[i].hand).map(c => c.id);
+      const text = pick === 'high' ? `${pw.name}: you have a tie, pick which highest card to give ${prev.name}`
+        : pick === 'low' ? `${pw.name}: you have a tie, pick which lowest card to give ${prev.name}`
+        : `Pass It On: pick a card to give ${prev.name}`;
+      const r = await ask({ text, sub: pick ? 'Everyone passes a card to the previous player.' : 'Everyone passes one card to the previous player.', ids, buttons: [{ id: 'ok', label: 'Pass', primary: true, needsChoice: true }] });
+      return r.id;
+    },
+    async chooseStrip(state, i, ids, info) {
+      const what = info.by === 'color' ? lc(COLOR_LABEL[info.card.color]) : 'number ' + info.card.num;
+      const r = await ask({ text: `${state.players[info.player].name} flipped ${cardName(info.card)}: discard a ${what} card`, sub: 'Tap one of the highlighted cards, then press Discard.', ids, buttons: [{ id: 'ok', label: 'Discard', primary: true, needsChoice: true }] });
+      return r.id;
+    },
+    async chooseExtraPlay(state, i) {
+      const hand = state.players[i].hand;
+      const r = await ask({ text: `${state.turn.power.name}: play an extra card`, sub: 'Drag a card to your play area, or tap it and press Play.', ids: hand.map(c => c.id), dragPlay: true, buttons: [{ id: 'ok', label: 'Play', primary: true, needsChoice: true }] });
       return r.id;
     },
     async chooseDiscardPick(state, i, pile) {
@@ -283,7 +312,8 @@
             ms = d.player === 0 ? 0 : 400;
             break;
           case 'draw':
-            if (d.player === 0 && d.card) { U.fresh.add(d.card.id); pushLog(`You drew ${cardName(d.card)}`); }
+            if (d.player === 0 && d.card) { U.fresh.add(d.card.id); pushLog(`You drew ${cardName(d.card)}${d.extra ? ' (extra card)' : ''}`); }
+            else if (d.extra && d.card) { pushLog(`${who(d.player)} draws an extra card`); ms = 500; }
             break;
           case 'play':
             U.fresh.add(d.card.id);
@@ -291,11 +321,11 @@
             ms = d.player === 0 ? 350 : 850;
             break;
           case 'mover':
-            pushLog(`${who(d.player)} ${verb(d.player, 'grab', 'grabs')} the Mover!`);
+            pushLog(`${who(d.player)} ${verb(d.player, 'grab', 'grabs')} the ${MW()}!`);
             ms = 700;
             break;
           case 'no-mover':
-            if (d.player === 0) { pushLog('No Mover, so no Power this turn'); ms = 450; }
+            if (d.player === 0) { pushLog('No ' + MW() + ', so no Power this turn'); ms = 450; }
             break;
           case 'power-use':
             pushLog(`${who(d.player)} ${verb(d.player, 'use', 'uses')} ${d.power.name}`);
@@ -314,12 +344,26 @@
             ms = 1200;
             break;
           case 'pass': {
-            const got = d.moves.find(m => m.to === 0);
-            pushLog('Everyone passed a card to the previous player' + (got ? `. You got ${cardName(got.card)}` : ''));
+            const got = d.moves.find(m => m.to === 0), gave = d.moves.find(m => m.from === 0);
+            const kind = d.pick === 'high' ? 'highest' : d.pick === 'low' ? 'lowest' : 'a';
+            pushLog(d.pick === 'any' || !d.pick ? 'Everyone passed a card to the previous player' : `Everyone passed their ${kind}-numbered card to the previous player`);
+            if (gave && got) pushLog(`You passed ${cardName(gave.card)} and got ${cardName(got.card)}`);
             if (got) U.fresh.add(got.card.id);
+            ms = 1500;
+            break;
+          }
+          case 'strip-reveal': {
+            const what = d.by === 'color' ? COLOR_LABEL[d.card.color] : 'number ' + d.card.num;
+            pushLog(`${who(d.player)} flipped ${cardName(d.card)}: everyone else discards a ${what} card`);
+            showBanner(cardName(d.card), `Others discard a ${d.by === 'color' ? lc(COLOR_LABEL[d.card.color]) : 'number ' + d.card.num} card`);
             ms = 1300;
             break;
           }
+          case 'strip':
+            if (!d.hits.length) pushLog('Nobody had a match');
+            d.hits.forEach(h => pushLog(`${who(h.player)} ${verb(h.player, 'discard', 'discards')} ${cardName(h.card)}`));
+            ms = d.hits.length ? 1300 : 700;
+            break;
           case 'discard-pick':
             U.fresh.add(d.card.id);
             pushLog(`${who(d.player)} ${verb(d.player, 'play', 'plays')} ${cardName(d.card)} from the discard pile`);
@@ -359,7 +403,7 @@
     const st = U.settings;
     const players = [{ name: 'You', human: true }];
     for (let i = 0; i < st.players - 1; i++) players.push({ name: BOT_NAMES[i], level: st.levels[i] });
-    U.state = SW.newGame({ players, first: st.first === 'you' ? 0 : 'random' });
+    U.state = SW.newGame({ players, first: st.first === 'you' ? 0 : 'random', edition: st.edition });
     U.agents = players.map(p => (p.human ? human : AI.createAgent(p.level, Math.random)));
     U.screen = 'game'; U.ask = null; U.hint = null; U.hintChosen = null; U.log = []; U.fresh = new Set();
     const first = U.state.players[U.state.current];
@@ -369,13 +413,13 @@
     const hooks = makeHooks(token);
     try {
       await sleep(600 * scale());
-      while (U.state.winner == null && U.token === token) {
+      while (U.token === token && U.state && U.state.winner == null) {
         await SW.runTurn(U.state, U.agents, hooks);
         render();
       }
       if (U.token === token) await gameOver(token);
     } catch (e) {
-      if (e !== ABORT) { console.error(e); U.status = 'Something went wrong. Open the menu to start a new game.'; render(); }
+      if (e !== ABORT && U.token === token) { console.error(e); U.status = 'Something went wrong. Open the menu to start a new game.'; render(); }
     }
   }
 
@@ -440,6 +484,7 @@
       else if (k === 'level') st.levels[+a] = b;
       else if (k === 'first') st.first = a;
       else if (k === 'speed') st.speed = a;
+      else if (k === 'edition' && SW.EDITIONS[a]) st.edition = a;
       saveSettings(); render(); return;
     }
     const btn = e.target.closest('[data-btn]');

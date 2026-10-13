@@ -382,3 +382,17 @@ button { font: inherit; cursor: pointer; }
   font-weight: 900; font-size: 12px; color: #6d4a00; background: var(--gold); padding: 3px 10px; border-radius: 99px;
 }
 .me.drop-over { outline-style: solid; background: #fff1b8; }
+
+/* ---------- editions ---------- */
+.logo .edname { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 800; letter-spacing: .5px; opacity: .8; text-transform: none; font-style: italic; vertical-align: 2px; }
+.eds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ed { border: 2px solid var(--paper-2); background: #fff; border-radius: 14px; padding: 8px 4px 9px; text-align: center; color: var(--ink); min-width: 0; }
+.ed .tok { width: 44px; height: 56px; margin: 0 auto 4px; }
+.ed .tok svg { width: 100%; height: 100%; }
+.ed b { display: block; font-size: 13px; line-height: 1.15; }
+.ed[aria-pressed="true"] { border-color: var(--navy); background: color-mix(in srgb, var(--navy) 9%, #fff); box-shadow: 0 3px 0 var(--navy-d); }
+.edblurb { margin: 10px 0 0; font-size: 13.5px; color: #4a5a76; font-weight: 600; }
+.edblurb .linkbtn { display: inline; padding: 0; }
+:root[data-ed="groot"] { --navy: #1f6b4f; --navy-d: #134733; }
+:root[data-ed="boba"] { --navy: #23252d; --navy-d: #0c0d11; --logo-red: #f2b800; }
+:root[data-ed="boba"] .logo b, :root[data-ed="boba"] .hero h1 em { color: #15161a; }

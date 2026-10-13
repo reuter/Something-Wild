@@ -42,6 +42,24 @@
     return av;
   }
 
+  /* How many of the three cards a Power's special scoring combo do these cards already cover? (0-3) */
+  function modeProgress(mode, all) {
+    switch (mode.type) {
+      case 'color3': return Math.min(3, all.filter(c => c.color === mode.color).length);
+      case 'nums': return new Set(all.filter(c => mode.nums.includes(c.num)).map(c => c.num)).size;
+      case 'colors': return new Set(all.filter(c => mode.colors.includes(c.color)).map(c => c.color)).size;
+      case 'sum': {
+        let best = all.length ? 1 : 0;
+        for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) {
+          const need = mode.total - all[i].num - all[j].num;
+          if (need >= 1 && need <= 9) best = 2;
+        }
+        return best;
+      }
+      default: return 0;
+    }
+  }
+
   /* How promising is this position? Higher = closer to scoring.
      tab: cards in play, hand: cards held (after playing), held: do we/will we hold the mover */
   function potential(tab, hand, ctx) {
@@ -69,16 +87,10 @@
         near = Math.max(near, [40, 14, 4][k] * p1 * 3);
       }
     }
-    // score-mode partials (blue/red trio, 2-6-8)
+    // score-mode partials (color trios, number combos, sums...)
     for (const m of modes) {
       if (!m.power || m.power.kind !== 'score') continue;
-      let cnt = 0;
-      if (m.power.mode === 'blue' || m.power.mode === 'red') {
-        cnt = all.filter(c => c.color === m.power.mode).length;
-      } else {
-        const have = new Set(all.filter(c => c.num === 2 || c.num === 6 || c.num === 8).map(c => c.num));
-        cnt = have.size;
-      }
+      const cnt = modeProgress(m.power.mode, all);
       if (cnt >= 2) near = Math.max(near, 26 * m.w);
       else if (cnt === 1) near = Math.max(near, 4 * m.w);
     }
@@ -162,6 +174,30 @@
     return potential(o.tableau, [], ctx) + o.powers.length * 120;
   }
 
+  /* Expected damage a "flip the top card, everyone else discards a match" Power does to the opponents' boards. */
+  function stripGain(state, me, pw, ctx) {
+    const pool0 = ALL_CARDS.filter(c => ctx.uc[c.color][c.num] > 0);
+    const pool = pool0.length ? pool0 : ALL_CARDS;
+    let tot = 0;
+    for (const c of pool) {
+      let gain = 0;
+      state.players.forEach((o, oi) => {
+        if (oi === me) return;
+        const match = o.tableau.filter(x => (pw.by === 'color' ? x.color === c.color : x.num === c.num));
+        if (!match.length) return;
+        const before = oppThreat(state, oi, ctx.uc, ctx.total);
+        let after = -1e9; // the victim chooses what to give up, so assume they pick the least harmful card
+        for (const m of match) {
+          const st2 = { ...state, players: state.players.map((pl, k) => (k === oi ? { ...pl, tableau: pl.tableau.filter(x => x !== m) } : pl)) };
+          after = Math.max(after, oppThreat(st2, oi, ctx.uc, ctx.total));
+        }
+        gain += before - after;
+      });
+      tot += gain;
+    }
+    return tot / pool.length;
+  }
+
   /* ---- Planning for medium/hard ------------------------------------------ */
   function plan(state, me, skill, rng) {
     const p = state.players[me];
@@ -202,12 +238,31 @@
               }
               if (v > baseVal + 0.5) options.push({ kind: 'swap', id: pw.id, pair: pr, val: v });
             }
-          } else if (pw.kind === 'discard7' && newTab.some(c => c.num === 7)) {
+          } else if (pw.kind === 'discardplay') {
             for (const d of state.discard) {
               const v = valueOutcome(state, me, newTab.concat([d]), newHand, null, held, ctx);
               if (v < 5000 && !skill.risky) continue;
               if (v > baseVal + 0.5) options.push({ kind: 'pick', id: pw.id, pick: d.id, val: v });
             }
+          } else if (pw.kind === 'extra') {
+            // draw and play an extra card: best play from the cards we hold, plus (hard) a look at what the draw might be
+            const bestPlay = (tab0, hand0) => {
+              let bv = -1e9;
+              for (const h of hand0) bv = Math.max(bv, valueOutcome(state, me, tab0.concat([h]), hand0.filter(x => x !== h), null, held, ctx));
+              return bv;
+            };
+            let v = bestPlay(newTab, newHand);
+            if (skill.risky) {
+              const pool = ALL_CARDS.filter(c => ctx.uc[c.color][c.num] > 0);
+              const sample = pool.length > 14 ? pool.filter((_, k) => rng() < 14 / pool.length) : pool;
+              if (sample.length) {
+                v = sample.reduce((t, d) => t + bestPlay(newTab, newHand.concat([d])), 0) / sample.length;
+              }
+            }
+            options.push({ kind: 'extra', id: pw.id, val: v });
+          } else if (pw.kind === 'strip' && skill.disrupt) {
+            const ev = stripGain(state, me, pw, ctx);
+            if (ev > 3) options.push({ kind: 'strip', id: pw.id, val: baseVal + 0.6 * ev });
           } else if (pw.kind === 'guess' && skill.risky) {
             // expected value of guessing, using what we know is unseen
             const unseen = ALL_CARDS.filter(c => ctx.uc[c.color][c.num] > 0);
@@ -244,7 +299,9 @@
   /* ---- Agents ------------------------------------------------------------------ */
   function baseAgent(rng) {
     return {
-      choosePassCard: (s, i) => pick(s.players[i].hand, rng).id,
+      choosePassCard: (s, i, allowed) => pick(allowed || s.players[i].hand, rng).id,
+      chooseStrip: (s, i, ids) => pick(ids, rng),
+      chooseExtraPlay: (s, i) => pick(s.players[i].hand, rng).id,
       chooseTriple: (s, i, triples) => Math.floor(rng() * triples.length),
       chooseDiscards: (s, i, n) => {
         const t = s.players[i].tableau.slice();
@@ -306,12 +363,31 @@
       }
       return best.id;
     };
-    a.choosePassCard = (s, i) => {
+    a.choosePassCard = (s, i, allowed) => {
       // give away the card that hurts least to lose
       const p = s.players[i], ctx = ctxFor(s, i);
       let best = null;
-      for (const c of p.hand) {
+      for (const c of (allowed || p.hand)) {
         const v = evalTab(s, i, p.tableau, p.hand.filter(x => x !== c), ctx, s.mover === i);
+        if (!best || v > best.v) best = { v, id: c.id };
+      }
+      return best.id;
+    };
+    a.chooseStrip = (s, i, ids) => {
+      // lose the card that matters least
+      const p = s.players[i], ctx = ctxFor(s, i);
+      let best = null;
+      for (const id of ids) {
+        const v = evalTab(s, i, p.tableau.filter(c => c.id !== id), p.hand, ctx, s.mover === i);
+        if (!best || v > best.v) best = { v, id };
+      }
+      return best.id;
+    };
+    a.chooseExtraPlay = (s, i) => {
+      const p = s.players[i], ctx = ctxFor(s, i);
+      let best = null;
+      for (const c of p.hand) {
+        const v = valueOutcome(s, i, p.tableau.concat([c]), p.hand.filter(x => x !== c), null, true, ctx);
         if (!best || v > best.v) best = { v, id: c.id };
       }
       return best.id;
@@ -363,7 +439,7 @@
     const a = {};
     a.choosePlay = (s, i) => { mood = roll(); return styles[mood].choosePlay(s, i); };
     ['choosePower', 'chooseColor', 'chooseNumber', 'chooseSwap', 'chooseDiscardPick',
-     'choosePassCard', 'chooseTriple', 'chooseDiscards'].forEach(m => {
+     'choosePassCard', 'chooseTriple', 'chooseDiscards', 'chooseStrip', 'chooseExtraPlay'].forEach(m => {
       a[m] = (...args) => styles[mood][m](...args);
     });
     a.mood = () => mood;
@@ -378,7 +454,7 @@
     const a = {};
     a.choosePlay = (s, i) => { cur = rng() < smartProb ? smart : rand; return cur.choosePlay(s, i); };
     ['choosePower', 'chooseColor', 'chooseNumber', 'chooseSwap', 'chooseDiscardPick',
-     'choosePassCard', 'chooseTriple', 'chooseDiscards'].forEach(m => {
+     'choosePassCard', 'chooseTriple', 'chooseDiscards', 'chooseStrip', 'chooseExtraPlay'].forEach(m => {
       a[m] = (...args) => cur[m](...args);
     });
     return a;

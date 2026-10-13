@@ -1,4 +1,4 @@
-/* Something Wild! - rules engine (Spider-Man edition ruleset).
+/* Something Wild! - rules engine (Spider-Man, Baby Groot and Boba Fett editions).
    Pure logic, no DOM. Works in browsers (global SW) and Node (require). */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -10,34 +10,70 @@
   const COLORS = ['red', 'blue', 'green', 'yellow', 'purple'];
   const COLOR_LABEL = { red: 'Red', blue: 'Blue', green: 'Green', yellow: 'Yellow', purple: 'Purple' };
 
-  /* ---- Power cards -------------------------------------------------------
-     10 powers, 2 per colour. The rulebook lists the 10 effects but the colour
-     of each Power card is only visible on the physical cards, so the colour
-     assignment below is an ASSUMPTION - edit the `color` fields to match. */
-  const POWERS = [
-    { id: 'blue3',      color: 'blue',   kind: 'score', mode: 'blue',
-      name: 'Blue Trio',     text: 'With three BLUE cards in play, you may score with them.' },
-    { id: 'red3',       color: 'red',    kind: 'score', mode: 'red',
-      name: 'Red Trio',      text: 'With three RED cards in play, you may score with them.' },
-    { id: 'n268',       color: 'green',  kind: 'score', mode: '268',
-      name: '2-6-8',         text: 'With a 2, a 6 and an 8 in play, you may score with them.' },
-    { id: 'redwild',    color: 'red',    kind: 'wild',  wild: 'red',
-      name: 'Red Is Wild',   text: 'Treat RED cards in play as any NUMBER.' },
-    { id: 'threewild',  color: 'blue',   kind: 'wild',  wild: '3',
-      name: 'Threes Wild',   text: 'Treat 3s in play as any NUMBER.' },
-    { id: 'guesscolor', color: 'purple', kind: 'guess', guess: 'color',
-      name: 'Guess a Color', text: 'Guess a COLOR. Discard the top card of the deck. If it matches, play the card.' },
-    { id: 'guessnum',   color: 'purple', kind: 'guess', guess: 'number',
-      name: 'Guess a Number', text: 'Guess a NUMBER. Discard the top card of the deck. If it matches, play the card.' },
-    { id: 'swap',       color: 'yellow', kind: 'swap',
-      name: 'Swap',          text: 'Swap a card in play with another player’s card of the same COLOR.' },
-    { id: 'seven',      color: 'yellow', kind: 'discard7',
-      name: 'Lucky Sevens',  text: 'If you have any 7s in play, play a card from the discard pile.' },
-    { id: 'pass',       color: 'green',  kind: 'pass',
-      name: 'Pass It On',    text: 'All players pass a card from their hand to the previous player.' },
+  /* ---- Editions & Power cards ---------------------------------------------
+     Every edition (Spider-Man, Baby Groot, Boba Fett...) uses the same 45 character cards;
+     only the ten Power cards and the little figure (the "Mover") change.
+     Each edition has 10 Powers, 2 per colour. The rulebooks list the 10 effects but the colour of
+     each Power card is only visible on the physical cards, so wherever the rulebook doesn't show it
+     the colour below is an ASSUMPTION - edit the `color` fields to match your cards.
+
+     Power kinds:
+       wild        wild:{by:'color'|'num', value, as:'num'|'color'}  cards in play count as any number / any colour
+       score       mode:{type:'color3'|'nums'|'sum'|'colors', ...}    an extra way to score three cards
+       guess       guess:'color'|'number'                             guess the top card of the deck, play it if right
+       strip       by:'color'|'number'                                flip the top card; everyone else discards a match
+       swap                                                           swap one of your cards with a same-colour card
+       discardplay cond:{num}|{color}                                 play a card from the discard pile
+       extra       cond:{num}                                         draw and play an extra card
+       pass        pick:'any'|'high'|'low'                            everyone passes a card to the previous player */
+  const P = (id, color, name, kind, extra, text) => Object.assign({ id, color, name, kind, text }, extra);
+  const SPIDERMAN_POWERS = [
+    P('blue3', 'blue', 'Blue Trio', 'score', { mode: { type: 'color3', color: 'blue' } }, 'With three BLUE cards in play, you may score with them.'),
+    P('red3', 'red', 'Red Trio', 'score', { mode: { type: 'color3', color: 'red' } }, 'With three RED cards in play, you may score with them.'),
+    P('n268', 'green', '2-6-8', 'score', { mode: { type: 'nums', nums: [2, 6, 8] } }, 'With a 2, a 6 and an 8 in play, you may score with them.'),
+    P('redwild', 'red', 'Red Is Wild', 'wild', { wild: { by: 'color', value: 'red', as: 'num' } }, 'Treat RED cards in play as any NUMBER.'),
+    P('threewild', 'blue', 'Threes Wild', 'wild', { wild: { by: 'num', value: 3, as: 'num' } }, 'Treat 3s in play as any NUMBER.'),
+    P('guesscolor', 'purple', 'Guess a Color', 'guess', { guess: 'color' }, 'Guess a COLOR. Discard the top card of the deck. If it matches, play the card.'),
+    P('guessnum', 'purple', 'Guess a Number', 'guess', { guess: 'number' }, 'Guess a NUMBER. Discard the top card of the deck. If it matches, play the card.'),
+    P('swap', 'yellow', 'Swap', 'swap', {}, 'Swap a card in play with another player’s card of the same COLOR.'),
+    P('seven', 'yellow', 'Lucky Sevens', 'discardplay', { cond: { num: 7 } }, 'If you have any 7s in play, play a card from the discard pile.'),
+    P('pass', 'green', 'Pass It On', 'pass', { pick: 'any' }, 'All players pass a card from their hand to the previous player.'),
   ];
+  const GROOT_POWERS = [
+    P('g_sweepcolor', 'red', 'Color Sweep', 'strip', { by: 'color' }, 'Discard the top card of the deck. All other players discard a card in play that matches that card’s COLOR, if possible.'),
+    P('g_sweepnum', 'green', 'Number Sweep', 'strip', { by: 'number' }, 'Discard the top card of the deck. All other players discard a card in play that matches that card’s NUMBER, if possible.'),
+    P('g_ninewild', 'yellow', 'Nines Are Wild', 'wild', { wild: { by: 'num', value: 9, as: 'color' } }, 'Treat 9s in play as any COLOR.'),
+    P('g_greenwild', 'green', 'Green Is Wild', 'wild', { wild: { by: 'color', value: 'green', as: 'num' } }, 'Treat GREEN cards in play as any NUMBER.'),
+    P('g_purple', 'purple', 'Second Chance', 'discardplay', { cond: { color: 'purple' } }, 'If you have any PURPLE cards in play, play a card from the discard pile.'),
+    P('g_twos', 'blue', 'Double Time', 'extra', { cond: { num: 2 } }, 'If you have any 2s in play, draw and play an extra card.'),
+    P('g_red3', 'red', 'Red Trio', 'score', { mode: { type: 'color3', color: 'red' } }, 'With three RED cards in play, you may score with them.'),
+    P('g_358', 'blue', '3-5-8', 'score', { mode: { type: 'nums', nums: [3, 5, 8] } }, 'With a 3, a 5 and an 8 in play, you may score with them.'),
+    P('g_sum12', 'yellow', 'Twelve Exactly', 'score', { mode: { type: 'sum', total: 12 } }, 'With three cards in play that total exactly 12, you may score with them.'),
+    P('g_pass', 'purple', 'Pass It On', 'pass', { pick: 'any' }, 'All players pass a card from their hand to the previous player.'),
+  ];
+  const BOBA_POWERS = [
+    P('b_bluewild', 'blue', 'Blue Is Wild', 'wild', { wild: { by: 'color', value: 'blue', as: 'num' } }, 'Treat BLUE cards in play as any NUMBER.'),
+    P('b_greenwild', 'green', 'Green Chameleon', 'wild', { wild: { by: 'color', value: 'green', as: 'color' } }, 'Treat GREEN cards in play as any COLOR.'),
+    P('b_oneswild', 'yellow', 'Ones Are Wild', 'wild', { wild: { by: 'num', value: 1, as: 'num' } }, 'Treat 1s in play as any NUMBER.'),
+    P('b_swap', 'purple', 'Swap', 'swap', {}, 'Swap one of your cards in play with another player’s card of the same COLOR.'),
+    P('b_sixes', 'blue', 'Sixes Bonus', 'extra', { cond: { num: 6 } }, 'If you have any 6s in play, draw and play an extra card.'),
+    P('b_sum16', 'green', 'Sweet Sixteen', 'score', { mode: { type: 'sum', total: 16 } }, 'With three cards in play that total exactly 16, you may score with them.'),
+    P('b_yellow3', 'yellow', 'Yellow Trio', 'score', { mode: { type: 'color3', color: 'yellow' } }, 'With three YELLOW cards in play, you may score with them.'),
+    P('b_bgr', 'red', 'Tri-Color', 'score', { mode: { type: 'colors', colors: ['blue', 'green', 'red'] } }, 'With a BLUE, a GREEN and a RED card in play, you may score with them.'),
+    P('b_passhigh', 'red', 'Pass the High', 'pass', { pick: 'high' }, 'All players pass the highest-numbered card from their hand to the previous player.'),
+    P('b_passlow', 'purple', 'Pass the Low', 'pass', { pick: 'low' }, 'All players pass the lowest-numbered card from their hand to the previous player.'),
+  ];
+  const EDITIONS = {
+    spiderman: { id: 'spiderman', name: 'Spider-Man', blurb: 'Swing for sets and runs. Guess, swap and pass.', moverWord: 'Mover', powers: SPIDERMAN_POWERS },
+    groot: { id: 'groot', name: 'Baby Groot', blurb: 'Sweep rivals’ cards and bend colors.', moverWord: 'Mover', powers: GROOT_POWERS },
+    boba: { id: 'boba', name: 'Boba Fett', blurb: 'Wild colors, swaps and sneaky passes.', moverWord: 'Figure', powers: BOBA_POWERS },
+  };
+  const EDITION_LIST = ['spiderman', 'groot', 'boba'].map(k => EDITIONS[k]);
+  const POWERS = SPIDERMAN_POWERS; // default edition (kept for older callers)
+  const ALL_POWERS = EDITION_LIST.reduce((a, e) => a.concat(e.powers), []);
   const POWER_BY_ID = {};
-  POWERS.forEach(p => (POWER_BY_ID[p.id] = p));
+  ALL_POWERS.forEach(p => (POWER_BY_ID[p.id] = p));
+  const editionOf = state => EDITIONS[(state && state.edition) || 'spiderman'];
 
   /* ---- Cards ------------------------------------------------------------ */
   const ALL_CARDS = [];
@@ -77,22 +113,28 @@
   }
 
   /* ---- Scoring logic ----------------------------------------------------- */
-  function wildFn(power) {
+  const NEVER = () => false;
+  /** Which cards in play does this Power make wild? { num: fn, col: fn } */
+  function wildFns(power) {
+    const out = { num: NEVER, col: NEVER };
     if (power && power.kind === 'wild') {
-      if (power.wild === 'red') return c => c.color === 'red';
-      if (power.wild === '3') return c => c.num === 3;
+      const w = power.wild;
+      const f = w.by === 'color' ? c => c.color === w.value : c => c.num === w.value;
+      out[w.as === 'color' ? 'col' : 'num'] = f;
     }
-    return () => false;
+    return out;
   }
-  function isSet(cards, wf) {
+  function isSet(cards, wn) {
+    wn = wn || NEVER;
     const nums = new Set();
-    for (const c of cards) if (!wf(c)) nums.add(c.num);
+    for (const c of cards) if (!wn(c)) nums.add(c.num);
     return nums.size <= 1;
   }
-  function isRun(cards, wf) {
-    const col = cards[0].color;
-    if (!cards.every(c => c.color === col)) return false;
-    const fixed = cards.filter(c => !wf(c)).map(c => c.num);
+  function isRun(cards, wn, wc) {
+    wn = wn || NEVER; wc = wc || NEVER;
+    const cols = new Set(cards.filter(c => !wc(c)).map(c => c.color));
+    if (cols.size > 1) return false;
+    const fixed = cards.filter(c => !wn(c)).map(c => c.num);
     if (new Set(fixed).size !== fixed.length) return false;
     if (fixed.length === 0) return true;
     const mn = Math.min(...fixed), mx = Math.max(...fixed);
@@ -101,19 +143,26 @@
   }
   function powerModeMatch(cards, power) {
     if (!power || power.kind !== 'score') return false;
-    if (power.mode === 'blue') return cards.every(c => c.color === 'blue');
-    if (power.mode === 'red') return cards.every(c => c.color === 'red');
-    if (power.mode === '268') {
-      const nums = cards.map(c => c.num).sort((a, b) => a - b);
-      return nums[0] === 2 && nums[1] === 6 && nums[2] === 8;
+    const m = power.mode;
+    switch (m.type) {
+      case 'color3': return cards.every(c => c.color === m.color);
+      case 'nums': {
+        const a = cards.map(c => c.num).sort((x, y) => x - y), b = m.nums.slice().sort((x, y) => x - y);
+        return a.length === b.length && a.every((v, i) => v === b[i]);
+      }
+      case 'sum': return cards.reduce((t, c) => t + c.num, 0) === m.total;
+      case 'colors': {
+        const a = cards.map(c => c.color).sort(), b = m.colors.slice().sort();
+        return a.length === b.length && a.every((v, i) => v === b[i]);
+      }
+      default: return false;
     }
-    return false;
   }
   /** What kind of score is this triple? returns 'set' | 'run' | 'power' | null */
   function tripleKind(cards, power) {
-    const wf = wildFn(power);
-    if (isSet(cards, wf)) return 'set';
-    if (isRun(cards, wf)) return 'run';
+    const w = wildFns(power);
+    if (isSet(cards, w.num)) return 'set';
+    if (isRun(cards, w.num, w.col)) return 'run';
     if (powerModeMatch(cards, power)) return 'power';
     return null;
   }
@@ -122,6 +171,9 @@
   function findTriples(tableau, power) {
     return combos3(tableau).filter(t => isScoringTriple(t, power));
   }
+  /** Does the condition {num} / {color} hold for any card in play? */
+  const condMet = (cond, tab) => tab.some(c => (cond.num != null ? c.num === cond.num : c.color === cond.color));
+  const condText = cond => (cond.num != null ? `a ${cond.num}` : `a ${COLOR_LABEL[cond.color].toLowerCase()} card`);
 
   /* ---- Power feasibility ------------------------------------------------- */
   function swapPairs(state, pi) {
@@ -141,13 +193,17 @@
     const me = state.players[pi];
     switch (power.kind) {
       case 'guess':
+      case 'strip':
         return state.deck.length + state.discard.length > 0 ? { ok: true } : { ok: false, reason: 'No cards left to reveal' };
       case 'swap':
         return swapPairs(state, pi).length ? { ok: true } : { ok: false, reason: 'No matching colors to swap' };
-      case 'discard7':
-        if (!me.tableau.some(c => c.num === 7)) return { ok: false, reason: 'You have no 7 in play' };
+      case 'discardplay':
+        if (!condMet(power.cond, me.tableau)) return { ok: false, reason: `You have no ${condText(power.cond).replace(/^a /, '')} in play` };
         if (!state.discard.length) return { ok: false, reason: 'Discard pile is empty' };
         return { ok: true };
+      case 'extra':
+        if (!condMet(power.cond, me.tableau)) return { ok: false, reason: `You have no ${condText(power.cond).replace(/^a /, '')} in play` };
+        return state.deck.length + state.discard.length > 0 ? { ok: true } : { ok: false, reason: 'No cards left to draw' };
       case 'pass':
         return state.players.every(p => p.hand.length > 0) ? { ok: true } : { ok: false, reason: 'Nobody has cards to pass' };
       default:
@@ -180,11 +236,13 @@
     }));
     const deck = shuffle(ALL_CARDS.slice(), rng);
     for (let r = 0; r < RULES.HAND; r++) players.forEach(p => p.hand.push(deck.pop()));
-    const powerPile = shuffle(POWERS.slice(), rng);
+    const edition = EDITIONS[opts.edition || 'spiderman'];
+    if (!edition) throw new Error('unknown edition ' + opts.edition);
+    const powerPile = shuffle(edition.powers.slice(), rng);
     const center = powerPile.pop();
     const first = opts.first == null || opts.first === 'random' ? Math.floor(rng() * players.length) : opts.first;
     return { players, deck, discard: [], powerPile, center, mover: null, current: first,
-      turnNo: 0, winner: null, rng, turn: null, seed };
+      turnNo: 0, winner: null, rng, turn: null, seed, edition: edition.id };
   }
 
   async function emit(hooks, type, data) {
@@ -233,8 +291,14 @@
         const n = state.players.length;
         const given = [];
         for (let i = 0; i < n; i++) {
-          let id = await agents[i].choosePassCard(state, i);
-          if (!state.players[i].hand.some(c => c.id === id)) id = state.players[i].hand[0].id;
+          const hand = state.players[i].hand;
+          let allowed = hand;
+          if (power.pick === 'high' || power.pick === 'low') {
+            const t = (power.pick === 'high' ? Math.max : Math.min)(...hand.map(c => c.num));
+            allowed = hand.filter(c => c.num === t);
+          }
+          let id = allowed.length === 1 ? allowed[0].id : await agents[i].choosePassCard(state, i, allowed.slice());
+          if (!allowed.some(c => c.id === id)) id = allowed[0].id;
           given[i] = id;
         }
         const cards = given.map((id, i) => removeById(state.players[i].hand, id));
@@ -244,16 +308,50 @@
           state.players[to].hand.push(cards[i]);
           moves.push({ from: i, to, card: cards[i] });
         }
-        await emit(hooks, 'pass', { player: pi, moves });
+        await emit(hooks, 'pass', { player: pi, moves, pick: power.pick });
         break;
       }
-      case 'discard7': {
+      case 'discardplay': {
         const pile = state.discard.slice();
         let id = await ag.chooseDiscardPick(state, pi, pile);
         if (!pile.some(c => c.id === id)) id = pile[pile.length - 1].id;
         const c = removeById(state.discard, id);
         p.tableau.push(c);
         await emit(hooks, 'discard-pick', { player: pi, card: c });
+        break;
+      }
+      case 'strip': {
+        // flip the top card; every other player (in turn order) discards a card in play that matches it
+        const c = await drawCard(state, hooks);
+        if (!c) break;
+        state.discard.push(c);
+        await emit(hooks, 'strip-reveal', { player: pi, by: power.by, card: c });
+        const n = state.players.length;
+        const hits = [];
+        for (let k = 1; k < n; k++) {
+          const oi = (pi + k) % n, o = state.players[oi];
+          const match = o.tableau.filter(x => (power.by === 'color' ? x.color === c.color : x.num === c.num));
+          if (!match.length) continue;
+          const ag2 = agents[oi];
+          let id = match.length === 1 || !ag2.chooseStrip ? match[0].id
+            : await ag2.chooseStrip(state, oi, match.map(x => x.id), { by: power.by, card: c, player: pi });
+          if (!match.some(x => x.id === id)) id = match[0].id;
+          hits.push({ player: oi, card: removeById(o.tableau, id) });
+        }
+        hits.forEach(h => state.discard.push(h.card));
+        await emit(hooks, 'strip', { player: pi, by: power.by, card: c, hits });
+        break;
+      }
+      case 'extra': {
+        const c = await drawCard(state, hooks);
+        if (c) p.hand.push(c);
+        await emit(hooks, 'draw', { player: pi, card: c, extra: true });
+        if (!p.hand.length) break;
+        let id = await (ag.chooseExtraPlay || ag.choosePlay).call(ag, state, pi);
+        if (!p.hand.some(x => x.id === id)) id = p.hand[0].id;
+        const played = removeById(p.hand, id);
+        p.tableau.push(played);
+        await emit(hooks, 'play', { player: pi, card: played, extra: true });
         break;
       }
     }
@@ -347,9 +445,9 @@
   }
 
   return {
-    RULES, COLORS, COLOR_LABEL, POWERS, POWER_BY_ID, ALL_CARDS, CARD_BY_ID,
+    RULES, COLORS, COLOR_LABEL, POWERS, ALL_POWERS, EDITIONS, EDITION_LIST, editionOf, POWER_BY_ID, ALL_CARDS, CARD_BY_ID,
     cardName, hasMoverSymbol, mulberry32, shuffle, combos3, removeById,
-    isSet, isRun, tripleKind, isScoringTriple, findTriples,
+    isSet, isRun, wildFns, condMet, condText, powerModeMatch, tripleKind, isScoringTriple, findTriples,
     swapPairs, powerFeasibility, usablePowers,
     newGame, drawCard, applyPower, runTurn, playGame,
   };

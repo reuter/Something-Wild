@@ -2,8 +2,8 @@
 const SW = require('../src/engine.js');
 const AI = require('../src/ai.js');
 
-async function oneGame(levels, seed, first) {
-  const st = SW.newGame({ players: levels.map((l, i) => ({ name: 'P' + i, level: l })), seed, first });
+async function oneGame(levels, seed, first, edition) {
+  const st = SW.newGame({ players: levels.map((l, i) => ({ name: 'P' + i, level: l })), seed, first, edition });
   const rng = SW.mulberry32(seed ^ 0x9e3779b9);
   const agents = levels.map(l => AI.createAgent(l, rng));
   const counts = { score: 0, powerUse: {}, mover: 0 };
@@ -27,10 +27,11 @@ async function oneGame(levels, seed, first) {
   const N = +process.argv[2] || 150;
   // 1. every combination finishes, and card/power conservation holds
   let stuck = 0, totalTurns = 0, games = 0, maxMs = 0; const powerUse = {};
-  for (const n of [2, 3, 4]) {
+  const EDS = process.env.EDITION ? [process.env.EDITION] : SW.EDITION_LIST.map(e => e.id);
+  for (const ed of EDS) for (const n of [2, 3, 4]) {
     for (let s = 0; s < 40; s++) {
       const lv = Array.from({ length: n }, (_, i) => AI.LEVELS[(s + i) % 4]);
-      const r = await oneGame(lv, 1000 + s * 7 + n, 'random');
+      const r = await oneGame(lv, 1000 + s * 7 + n, 'random', ed);
       games++; totalTurns += r.turns; maxMs = Math.max(maxMs, r.ms);
       if (r.winner == null) stuck++;
       for (const k in r.counts.powerUse) powerUse[k] = (powerUse[k] || 0) + r.counts.powerUse[k];
@@ -47,7 +48,7 @@ async function oneGame(levels, seed, first) {
     for (let g = 0; g < N; g++) {
       const swap = g % 2;
       const lv = swap ? [L[b], L[a]] : [L[a], L[b]];
-      const r = await oneGame(lv, 5000 + g * 13 + a * 3 + b, 'random');
+      const r = await oneGame(lv, 5000 + g * 13 + a * 3 + b, 'random', process.env.EDITION || undefined);
       if (r.winner == null) none++;
       else { const winLvl = lv[r.winner]; if (winLvl === L[a]) wa++; else wb++; }
     }
